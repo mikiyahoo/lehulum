@@ -1,6 +1,3 @@
 .env
 node_modules/
 nul
-
-# Separate Next.js app — kept locally, not part of the Lehulum prototype deploy
-next-smart-ui-designer/
