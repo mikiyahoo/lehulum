@@ -253,9 +253,11 @@
   // The National ID comes from Fayda: not linked yet → link it first (linked → never asked)
   // Scenario ?fayda=0 (sidebar): start with Fayda not linked → the Link Your Fayda ID popup
   // Applied once, then dropped from the address: once Fayda is linked it is never asked again
-  if (new URLSearchParams(location.search).get('fayda') === '0') { TL.linkFayda(false); history.replaceState(null, '', location.pathname); }
-  if (!TL.faydaLinked()) document.getElementById('fayda').classList.add('show');
-  function remindLater() { if (history.length > 1 && document.referrer) history.back(); else location.href = 'Credit Score.html'; }
+  if (new URLSearchParams(location.search).get('fayda') === '0') { TL.linkFayda(false); sessionStorage.removeItem('faydaLater'); history.replaceState(null, '', location.pathname); }
+  // Ask only when Fayda isn't linked and the customer hasn't said "Remind me later" this session
+  if (!TL.faydaLinked() && !sessionStorage.getItem('faydaLater')) document.getElementById('fayda').classList.add('show');
+  // Remind me later: close the popup, carry on with the form, don't ask again this session
+  function remindLater() { sessionStorage.setItem('faydaLater', '1'); document.getElementById('fayda').classList.remove('show'); }
   const BANK_DIR = 'assets/banks logo/';
   const BANKS = [
     ['Commercial Bank of Ethiopia', 'cbe-logo.png'], ['Awash Bank', 'awass-bank.png'], ['Bank of Abyssinia', 'abyssinya-bank.png'],
