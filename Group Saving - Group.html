@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/component-status-bar.css">
 <link rel="stylesheet" href="styles/component-sc-card.css">
-<link rel="stylesheet" href="styles/savings.css?v=20261125c">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
 <style>
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
@@ -108,8 +108,8 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
-<script src="savings-ui.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
 <script>
   const $ = id => document.getElementById(id);
   const fmt = SV.fmt, IC = SVUI.IC;
@@ -185,7 +185,8 @@
     // Same list as every savings menu: Account details · FAQ, then the group's own actions
     const link = (svg, label, href) => `<button class="menu-item" type="button" onclick="location.href='${href}'"><i>${svg}</i><b>${label}</b></button>`;
     const INFO = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>';
-    $('menuItems').innerHTML = link('<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></svg>', 'Account details', 'Savings - Account Details.html?group=' + g.id) + link('<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17h.01"/></svg>', 'FAQ', 'Savings - Help.html?tab=group')
+    const MINI = '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h16"/><path d="M17 12h3"/></svg>';
+    $('menuItems').innerHTML = `<button class="menu-item" type="button" onclick="closeSheets(); SVUI.miniStatement('group', '${g.id}', '${g.name.replace(/'/g, '')}')"><i>${MINI}</i><b>Mini Statement</b></button>` + link('<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></svg>', 'Account details', 'Savings - Account Details.html?group=' + g.id) + link('<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17h.01"/></svg>', 'FAQ', 'Savings - Help.html?tab=group')
       + (admin ? item('edit', 'Edit Group', 'openEdit') + item('add', 'Add Members', 'addMembers') + item('close', 'Close Group', 'askCloseGroup')
       : (g.leave && g.leave.who === 'me' ? '' : item('leave', 'Leave Group', 'askLeave')));
     $('menuBtn').style.visibility = $('menuItems').innerHTML ? '' : 'hidden';

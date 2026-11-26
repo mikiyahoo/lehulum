@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Statement — M-PESA</title>
+<link rel="stylesheet" href="styles/design-tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/component-status-bar.css">
+<link rel="stylesheet" href="styles/component-sc-card.css">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
+<style>
+  @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
+
+  /* Mini Statement (?id= saving · ?group= · ?fd=): account card, the last five movements, SMS note. */
+  .app-content { display: flex; flex-direction: column; }
+  .ms-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 12px; padding-bottom: 12px; }
+  .ms-scroll::-webkit-scrollbar { display: none; }
+  .ms-scroll > * { flex-shrink: 0; }
+  .ms-card { position: relative; overflow: hidden; padding: 16px; border-radius: 24px; background: linear-gradient(120deg, #FE353D 0%, #E0262D 55%, #9E1218 100%); color: #FFF; box-shadow: 0 8px 22px rgba(224,38,45,0.25); }
+  .ms-card::after { content: ''; position: absolute; right: -50px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+  .ms-top { position: relative; display: flex; align-items: center; gap: 12px; }
+  .ms-top i { width: 42px; height: 42px; border-radius: 12px; background: #FFF; display: grid; place-items: center; flex-shrink: 0; }
+  .ms-top i svg { width: 22px; height: 22px; stroke: var(--Primary); stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-top b { display: block; font-size: 16px; font-weight: 600; }
+  .ms-top small { display: block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,0.85); }
+  .ms-lbl { position: relative; display: block; margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.85); }
+  .ms-bal { position: relative; margin-top: 2px; font-size: 28px; font-weight: 700; letter-spacing: -0.4px; }
+  .ms-bal small { margin-left: 5px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .ms-meta { position: relative; display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,0.35); font-size: 11.5px; color: rgba(255,255,255,0.85); }
+  .ms-meta b { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: #FFF; letter-spacing: 0.4px; }
+  .ms-meta .r { text-align: right; }
+  .ms-sec { display: flex; justify-content: space-between; align-items: baseline; margin: 6px 4px 0; }
+  .ms-sec span { font-size: 15px; font-weight: 400; color: var(--On-Surface); }
+  .ms-sec small { font-size: 12px; color: var(--On-Surface-Low); }
+  .ms-list { padding: 4px 16px; border-radius: 20px; background: #FFF; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .ms-tx { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .ms-tx + .ms-tx { border-top: 1px solid #F1F1F4; }
+  .ms-tx i { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: #DCFCE7; }
+  .ms-tx i svg { width: 18px; height: 18px; stroke: #16A34A; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-tx.out i { background: #FFF1F2; } .ms-tx.out i svg { stroke: var(--Primary); }
+  .ms-tx span { flex: 1; min-width: 0; }
+  .ms-tx b { display: block; font-size: 13.5px; font-weight: 600; color: var(--On-Surface); }
+  .ms-tx small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--On-Surface-Low); }
+  .ms-tx em { font-style: normal; font-size: 13.5px; font-weight: 700; color: #16A34A; white-space: nowrap; }
+  .ms-tx.out em { color: var(--Primary); }
+  .ms-none { padding: 22px 0; text-align: center; font-size: 13px; color: var(--On-Surface-Low); }
+  .ms-sms { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: #F0FDF4; color: #166534; font-size: 12.5px; }
+  .ms-sms svg { width: 18px; height: 18px; flex-shrink: 0; stroke: #16A34A; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-bar { flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 0 16px; }
+  .ms-bar button { height: 50px; border-radius: 14px; font-family: Switzer, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .ms-bar .dl { border: 1.5px solid #F2A5A9; background: #FFF; color: var(--Primary); }
+  .ms-bar .dl svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ms-bar .ok { border: none; background: var(--Primary); color: #FFF; box-shadow: 0 4px 16px rgba(254,53,61,0.25); }
+</style>
+<link rel="stylesheet" href="styles/device.css">
+</head>
+<body>
+<div class="phone-frame">
+  <div class="status-bar">
+    <span class="time">10:00</span>
+    <div class="status-icons">
+      <svg data-name="icon-wifi" viewBox="0 0 24 24" fill="none"><path d="M1 9l2 2c4.970-4.970 13.030-4.970 18 0l2-2C16.930 2.930 7.080 2.930 1 9z" fill="#1C1C21"/><path d="M5 13l2 2c2.760-2.760 7.240-2.760 10 0l2-2C15.140 9.140 8.870 9.140 5 13z" fill="#1C1C21"/><path d="M9 17l2 2c1.100-1.100 2.900-1.100 4 0l2-2c-2.210-2.210-5.790-2.210-8 0z" fill="#1C1C21"/></svg>
+      <svg data-name="icon-signal" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="4" height="12" rx="1" fill="#1C1C21"/><rect x="8" y="4" width="4" height="14" rx="1" fill="#1C1C21"/><rect x="14" y="2" width="4" height="16" rx="1" fill="#1C1C21"/><rect x="20" y="0" width="4" height="18" rx="1" fill="#1C1C21" opacity="0.3"/></svg>
+      <svg data-name="icon-battery" viewBox="0 0 28 14" fill="none"><rect x="0" y="1" width="22" height="12" rx="2.5" stroke="#1C1C21" stroke-width="1.5"/><rect x="2" y="3" width="16" height="8" rx="1" fill="#1C1C21"/><rect x="24" y="4" width="2" height="6" rx="1" fill="#1C1C21"/></svg>
+    </div>
+  </div>
+
+  <div class="app-content">
+    <div class="header-nav">
+      <button class="icon-btn" onclick="goBack()" aria-label="Back"><svg data-name="icon-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <span class="header-title">Mini Statement</span>
+      <span class="spacer"></span>
+    </div>
+
+    <div class="ms-scroll">
+      <div class="ms-card">
+        <div class="ms-top"><i id="msIc"></i><span><b id="msName"></b><small id="msType"></small></span></div>
+        <span class="ms-lbl" id="msLbl">Balance</span>
+        <div class="ms-bal"><span id="msBal"></span><small>ETB</small></div>
+        <div class="ms-meta"><span>Account Number<b id="msNo"></b></span><span class="r">As of<b id="msAsOf"></b></span></div>
+      </div>
+      <div class="ms-sec"><span>Last 5 transactions</span><small id="msCount"></small></div>
+      <div class="ms-list" id="msList"></div>
+      <div class="ms-sms"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>A copy was also sent to your phone by SMS.</span></div>
+    </div>
+
+    <div class="ms-bar">
+      <button class="dl" type="button" onclick="download()"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M4 20h16"/></svg>Download</button>
+      <button class="ok" type="button" onclick="goBack()">Done</button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt = SV.fmt, IC = SVUI.IC, D = SV.dateStr;
+  let tt;
+  function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2200); }
+  const q = new URLSearchParams(location.search), S = SV.load();
+  const pocket = q.get('id') && S.pockets.find(p => p.id === q.get('id'));
+  const grp = q.get('group') && (S.groups || []).find(g => g.id === q.get('group'));
+  const fd = q.get('fd') && (S.deposits || []).find(a => a.id === q.get('fd'));
+  const back = pocket ? `Savings - Pocket.html?id=${pocket.id}` : grp ? `Group Saving - Group.html?id=${grp.id}` : fd ? `Fixed Deposit - Account.html?id=${fd.id}&done=1&menu=20261119c` : 'Savings.html?menu=20261119d';
+  function goBack() { location.href = back; }
+
+  // Movements, newest first: [label, date, amount, out?]
+  let moves = [], name = '', type = '', bal = 0, ic = IC.individual, no = '';
+  if (pocket) {
+    name = pocket.name; type = pocket.kind === 'target' ? 'Target Saving' : 'Individual Saving'; ic = IC[pocket.kind]; bal = SV.balanceOf(pocket); no = pocket.id;
+    moves = pocket.txns.map(t => [t.type === 'WITHDRAW' ? 'Withdrawn to wallet' : t.auto ? 'Recurring deposit' : t.by === 'fd' ? 'From a fixed deposit' : 'Deposit from wallet', t.on, t.amount, t.type === 'WITHDRAW']);
+  } else if (grp) {
+    name = grp.name; type = 'Group Saving'; ic = IC.group; bal = SV.balanceOf(grp); no = grp.id;
+    moves = grp.txns.map(t => [(t.by === 'me' ? 'You' : SV.person(t.by).name) + (t.type === 'WITHDRAW' ? ' · withdrawal' : t.auto ? ' · recurring deposit' : ' · contribution'), t.on, t.amount, t.type === 'WITHDRAW']);
+  } else if (fd) {
+    const st = SV.fdStatus(fd);
+    name = fd.name; type = 'Fixed Deposit · ' + fd.rate + '% Interest'; ic = IC.fixed; no = fd.id;
+    bal = st === 'matured' ? SV.maturedTotal(fd) : st === 'closed' ? 0 : fd.principal;
+    $('msLbl').textContent = st === 'matured' ? 'Ready to collect' : 'Locked amount';
+    const L = { DEPOSIT: 'Deposit locked', 'INTEREST ACCRUED': 'Interest accrued', 'INTEREST POSTED': 'Interest posted', WITHDRAW: 'Withdrawn', 'ROLLED OVER': 'Rolled over' };
+    moves = SV.history(fd).map(t => [L[t.type] || t.type, t.on, t.amount, t.type === 'WITHDRAW']);
+  }
+  moves = moves.sort((a, b) => new Date(b[1]) - new Date(a[1])).slice(0, 5);
+
+  $('msIc').innerHTML = ic; $('msName').textContent = name || 'Saving'; $('msType').textContent = type;
+  $('msBal').textContent = fmt(bal); $('msNo').textContent = no || '—';
+  $('msAsOf').textContent = new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  $('msCount').textContent = moves.length ? moves.length + (moves.length === 1 ? ' movement' : ' movements') : '';
+  const IN = '<svg viewBox="0 0 24 24"><path d="M17 7 7 17M15 17H7V9"/></svg>', OUT = '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+  $('msList').innerHTML = moves.length ? moves.map(([l, on, amt, out]) => `<div class="ms-tx${out ? ' out' : ''}"><i>${out ? OUT : IN}</i><span><b>${l}</b><small>${D(on)}</small></span><em>${out ? '-' : '+'}${fmt(amt)}</em></div>`).join('')
+    : '<p class="ms-none">No transactions yet</p>';
+
+  // Download: a simple PDF of this statement
+  async function download() {
+    toast('Preparing PDF…');
+    try {
+      if (!window.jspdf) await new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+      const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a5' }), W = doc.internal.pageSize.getWidth(), M = 32;
+      doc.setFillColor(254, 53, 61); doc.rect(0, 0, W, 64, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('M-PESA', M, 30);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text('Mini Statement', M, 46); doc.text($('msAsOf').textContent, W - M, 30, { align: 'right' });
+      let y = 92; doc.setTextColor(28, 28, 33); doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(name, M, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(124, 124, 135); doc.text(type + ' · ' + no, M, y + 15);
+      doc.setTextColor(28, 28, 33); doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text(fmt(bal) + ' ETB', M, y + 42); y += 70;
+      doc.setFontSize(10);
+      moves.forEach(([l, on, amt, out]) => {
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(28, 28, 33); doc.text(l, M, y); doc.setTextColor(124, 124, 135); doc.text(D(on), M, y + 13);
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...(out ? [254, 53, 61] : [22, 163, 74])); doc.text((out ? '-' : '+') + fmt(amt), W - M, y, { align: 'right' });
+        doc.setDrawColor(236, 236, 239); doc.line(M, y + 22, W - M, y + 22); y += 34;
+      });
+      doc.save(`M-PESA-Mini-Statement-${(no || 'saving').replace(/[^\w-]/g, '')}.pdf`);
+      toast('Mini statement downloaded');
+    } catch (e) { toast('Could not create the PDF. Please try again.'); }
+  }
+</script>
+<script src="figma-export.js"></script>
+<script src="test-scenarios-data.js"></script>
+<script src="test-scenarios.js"></script>
+</body>
+</html>

@@ -104,7 +104,8 @@
 </div>
 
 <script>
-  function done() { location.href = 'Credit & Saving.html'; }
+  // First activation has no score yet → show the Credit Score (no score) next
+  function done() { location.href = sessionStorage.getItem('tlNoScore') ? 'Credit Score - No Score.html' : 'Credit & Saving.html'; }
 </script>
 <!-- Export to Figma button (shared exporter) -->
 <script src="figma-export.js"></script>

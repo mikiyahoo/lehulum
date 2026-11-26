@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="styles/component-status-bar.css">
 <link rel="stylesheet" href="styles/component-sc-card.css">
 <link rel="stylesheet" href="styles/component-actions.css">
-<link rel="stylesheet" href="styles/savings.css?v=20261125c">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
 <style>
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
@@ -279,7 +279,7 @@
       </div>
     </div>
     <button class="menu-item" type="button" onclick="location.href='Savings - Help.html'"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.4M12 17h.01"/></svg></i><b>FAQ</b></button>
-    <button class="menu-item" type="button" onclick="location.href='Fixed Deposit.html?menu=20261119c&amp;action=close'"><i><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></i><b>Close Deposit</b></button>
+    <button class="menu-item" type="button" onclick="closeSheets(); SVUI.pickAccount({ scope: 'all', purpose: 'close' })"><i><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></i><b>Close Saving</b></button>
   </div>
 
   <!-- Mini Statement Sheet -->
@@ -312,8 +312,8 @@
   <div class="ok-toast" id="optToast" role="status"><span class="ok-ic"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Successfully Opted-In!</b><small>You have successfully opted in to M-PESA Saving</small></span></div>
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
-<script src="savings-ui.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
 <script>
   const $ = id => document.getElementById(id);
   const fmt = SV.fmt;
@@ -442,10 +442,8 @@
     if (acc) acc.classList.toggle('open');
   }
 
-  function openMiniStatement() {
-    closeSheets();
-    location.href = 'Fixed Deposit.html?menu=20261119c&action=mini';
-  }
+  function openMiniStatement() { closeSheets(); SVUI.pickAccount({ scope: 'all', purpose: 'mini' }); }
+
 
   function openRollOver() {
     closeSheets();

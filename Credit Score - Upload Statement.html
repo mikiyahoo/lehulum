@@ -101,6 +101,18 @@
   .btn-primary { width: 100%; height: 52px; border: none; border-radius: 14px; background: var(--Primary); color: #FFF; font-family: Switzer, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 16px rgba(254,53,61,0.25); }
   .btn-primary:disabled { background: #E0E0E0; color: var(--On-Surface-Low); box-shadow: none; cursor: default; }
 
+  /* Fayda not linked: popup over the form */
+  .fy-scrim { position: absolute; inset: 0; z-index: 120; display: none; align-items: center; justify-content: center; padding: 0 20px; background: rgba(15,15,20,0.55); }
+  .fy-scrim.show { display: flex; }
+  .fy { width: 100%; padding: 24px 18px 18px; border-radius: 22px; background: #FFF; text-align: center; animation: fyPop .25s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes fyPop { from { transform: scale(.92); opacity: 0; } to { transform: none; opacity: 1; } }
+  .fy img { width: 64px; height: 64px; border-radius: 50%; display: block; margin: 0 auto 14px; }
+  .fy h3 { font-size: 22px; font-weight: 500; color: var(--On-Surface); }
+  .fy p { margin: 8px 4px 18px; font-size: 14px; line-height: 1.45; color: #55555E; }
+  .fy .go { width: 100%; height: 46px; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 12px; background: var(--Primary); color: #FFF; font-family: inherit; font-size: 14.5px; font-weight: 500; cursor: pointer; }
+  .fy .go svg { width: 17px; height: 17px; stroke: #FFF; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .fy .later { width: 100%; height: 44px; margin-top: 10px; border: none; border-radius: 12px; background: #F1F1F4; color: #55555E; font-family: inherit; font-size: 14px; cursor: pointer; }
+
   /* Bank sheet */
   .scrim { position: absolute; inset: 0; z-index: 100; background: rgba(0,0,0,0.42); opacity: 0; visibility: hidden; transition: opacity 0.22s, visibility 0.22s; }
   .scrim.show { opacity: 1; visibility: visible; }
@@ -197,9 +209,20 @@
     <div class="bottom-bar">
       <div class="consent" id="consent" onclick="this.classList.toggle('on'); check()">
         <span class="box"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
-        <p>I allow M-PESA and its partner banks to read this statement to work out my credit score and loan limit.</p>
+        <p>I allow M-PESA and its partner banks to read this statement &amp; National ID to work out my credit score and loan limit.</p>
       </div>
       <button class="btn-primary" id="submit" disabled onclick="submit()">Update My Score</button>
+    </div>
+  </div>
+
+  <!-- Fayda ID not linked -->
+  <div class="fy-scrim" id="fayda" role="dialog" aria-label="Link your Fayda ID">
+    <div class="fy">
+      <img src="assets/fayda-logo-hq.png" alt="Fayda">
+      <h3>Link Your Fayda ID</h3>
+      <p>Link your account with Fayda to enjoy a more secure and seamless experience on the app.</p>
+      <button class="go" type="button" onclick="location.href='Fayda Steps.html?next=' + encodeURIComponent('Credit Score - Upload Statement.html')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Link Now</button>
+      <button class="later" type="button" onclick="remindLater()">Remind me later</button>
     </div>
   </div>
 
@@ -228,12 +251,16 @@
 <script>
   const $ = id => document.getElementById(id);
   // The National ID comes from Fayda: not linked yet → link it first (linked → never asked)
-  if (!TL.faydaLinked()) location.replace('Link Fayda ID.html?next=' + encodeURIComponent('Credit Score - Upload Statement.html'));
+  // Scenario ?fayda=0 (sidebar): start with Fayda not linked → the Link Your Fayda ID popup
+  if (new URLSearchParams(location.search).get('fayda') === '0') TL.linkFayda(false);
+  if (!TL.faydaLinked()) document.getElementById('fayda').classList.add('show');
+  function remindLater() { if (history.length > 1 && document.referrer) history.back(); else location.href = 'Credit Score.html'; }
   const BANK_DIR = 'assets/banks logo/';
   const BANKS = [
-    ['Commercial Bank of Ethiopia', 'cbe-logo.png'], ['Bank of Abyssinia', 'abyssinya-bank.png'], ['Awash Bank', 'awass-bank.png'],
-    ['Dashen Bank', 'dashen-bank.png'], ['Coopbank', 'coop-bank.png'], ['Hibret Bank', 'Hibret-bank.png'], ['Amhara Bank', 'amhara-bank.png'],
-    ['Nib International Bank', 'nib-bank.png'], ['Oromia Bank', 'oromia-i-bank.png'], ['Wegagen Bank', 'wegagen-bank.png'], ['Zemen Bank', 'zemen-bank.png']
+    ['Commercial Bank of Ethiopia', 'cbe-logo.png'], ['Awash Bank', 'awass-bank.png'], ['Bank of Abyssinia', 'abyssinya-bank.png'],
+    ['Oromia International Bank', 'oromia-i-bank.png'], ['Hibret Bank', 'Hibret-bank.png'], ['Dashen Bank', 'dashen-bank.png'],
+    ['Zemen Bank', 'zemen-bank.png'], ['Amhara Bank', 'amhara-bank.png'], ['Cooperative Bank of Oromia', 'coop-bank.png'],
+    ['Nib International Bank', 'nib-bank.png'], ['Wegagen Bank', 'wegagen-bank.png']
   ];
   let bank = null, file = null, uploading = false;
 
@@ -294,6 +321,7 @@
   // Submit → processing: the bank reviews the statement in the background and the
   // new score arrives a little later (term-loan-store.js queueScore / watchScore)
   function submit() {
+    try { sessionStorage.removeItem('tlNoScore'); } catch (e) {}
     TL.queueScore(30);
     $('stage').classList.add('show');
   }

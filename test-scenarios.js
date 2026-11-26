@@ -506,6 +506,16 @@
                '</div>';
       }).join('');
     }
+    // Actions this screen can play (window.TEST_ACTIONS = [{ label, desc, run }])
+    var acts = window.TEST_ACTIONS || [];
+    if (acts.length) {
+      body += '<div class="test-section-title">Try on this screen</div>' + acts.map(function (a, i) {
+        return '<div class="test-row test-act" data-act="' + i + '">' +
+                 '<div class="test-row-icon step">' + ICON_STEP + '</div>' +
+                 '<div class="test-row-info"><span class="test-row-label">' + esc(a.label) + '</span>' +
+                 '<span class="test-row-desc">' + esc(a.desc || 'Run on this screen') + '</span></div></div>';
+      }).join('');
+    }
     if (data.steps && data.steps.length) {
       body += '<div class="test-section-title">Flow steps</div>' + rowsFor(data.steps, 'step');
     }
@@ -539,6 +549,8 @@
         setTimeout(function () { val.classList.remove('copied'); val.textContent = v; }, 1100);
         return;
       }
+      var act = e.target.closest('.test-act');
+      if (act) { window.toggleTestPopup(); var fn = (window.TEST_ACTIONS || [])[+act.getAttribute('data-act')]; if (fn && fn.run) fn.run(); return; }
       var row = e.target.closest('.test-row');
       if (row) window.location.href = row.getAttribute('data-file');
     });

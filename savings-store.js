@@ -4,7 +4,7 @@
    Interest is derived, never stored: 7% p.a. per movement from its own day. */
 (function () {
   const RATE = 7;              // % per year, Individual and Target
-  const TARGET_MIN = 500;      // smallest goal
+  const TARGET_MIN = 25;       // smallest goal
   const WALLET = 75000;        // M-PESA main balance used by the prototype
   const DAY = 864e5;
   const VERSION = 6;

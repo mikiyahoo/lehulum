@@ -66,8 +66,7 @@
   /* Static Repay Loan and Deposit Now shortcuts (the same on both slides) */
   .tiles .set { display: contents; }
   .tiles .set[hidden] { display: none; }
-  .tiles .tile { cursor: default; }
-  .tiles .tile:active { transform: none; }
+  .tiles .tile { cursor: pointer; }
 
   /* Quick actions: thin splitters between the four tiles */
 
@@ -164,11 +163,11 @@
     <!-- Static shortcuts -->
     <div class="tiles">
       <div class="set" data-set="0">
-        <div class="tile">
+        <div class="tile" onclick="repayLoan()">
           <span class="t-ic"><svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg></span>
           <span class="t-txt"><b>Repay Loan</b></span><svg class="cv" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
         </div>
-        <div class="tile">
+        <div class="tile" onclick="depositNow()">
           <span class="t-ic"><svg viewBox="0 0 24 24"><path d="M12 3v11M7.5 9.5 12 14l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
           <span class="t-txt"><b>Deposit Now</b></span><svg class="cv" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
         </div>
@@ -206,7 +205,7 @@
 </div>
 
 <script src="term-loan-store.js"></script>
-<script src="savings-store.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
 <script>
   // Upcoming payments (live): the next unpaid instalment of each active loan,
   // then Errif if anything is owed; Pay opens the loan / Errif to choose there
@@ -232,6 +231,10 @@
       ? rows.slice(0, 2).join('<span class="up-line" data-shape="line" data-name="line"></span>')
       : '<p class="up-empty">Nothing due right now.</p>';
   })();
+
+  // Repay Loan: the loan with the soonest unpaid instalment; no loans → Term Loan
+  // Repay Loan: every active credit account, each with its own Repay
+  function repayLoan() { location.href = 'Term Loan - Repay Loan.html'; }
 
   // A statement upload finishes in the background: tell the customer when the score lands
   TL.watchScore(up => {

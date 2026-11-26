@@ -8,11 +8,11 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/component-status-bar.css">
 <link rel="stylesheet" href="styles/component-sc-card.css">
-<link rel="stylesheet" href="styles/savings.css?v=20261125c">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
 <style>
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
-  /* Set or change the target on a saving (?id=). Target amount (≥ 500 ETB and
+  /* Set or change the target on a saving (?id=). Target amount (≥ 25 ETB and
      more than is already saved) and a target date (3M / 6M / 1Y or the
      picker), with the monthly amount that reaches it. Save → back to the saving.
      A saving that already has a target can Remove it (the money stays). */
@@ -80,8 +80,8 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
-<script src="savings-ui.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
 <script>
   const $ = id => document.getElementById(id);
   const fmt = SV.fmt, IC = SVUI.IC;
@@ -125,7 +125,7 @@
     const notIncreased = !!t && n <= t.amount;
     const validDate = !!by && by >= $('by').min && by <= $('by').max;
     const ok = n >= SV.TARGET_MIN && n > bal && !notIncreased && validDate;
-    $('goalHint').textContent = low ? 'Minimum 500 ETB'
+    $('goalHint').textContent = low ? 'Minimum 25 ETB'
       : notIncreased ? `Enter more than ${fmt(t.amount)} ETB to increase this target.`
       : under ? `Already saved ${fmt(bal)} ETB. Pick a higher target.`
       : !!by && !validDate ? 'Choose a future date within the next 5 years.'

@@ -133,5 +133,53 @@
   // Opens Recurring Deposits for this saving / group (its own deposits only: edit · pause · delete · new)
   const recurring = (auto, href) => ({ label: 'Recurring', ic: 'repeat', kind: auto ? 'on' : 'off', onclick: `location.href='Savings - Recurring.html?${(href.split('?')[1] || '')}&back=' + encodeURIComponent(location.pathname.split('/').pop() + location.search)` });
 
-  window.SVUI = { IC, av, pocketCard, depositCard, groupCard, empty, memberPicker, autoCard, noticeBanner, roundActions, recurring };
+
+  /* ── Mini Statement and Close for any saving ──
+     miniStatement(acc) → PIN → a statement receipt (last five movements).
+     pickAccount({ scope, purpose }) lists the accounts in scope (all · individual · target · fixed · group)
+     and runs the step for the one picked; with a single account it goes straight on. */
+  const pinStep = data => { sessionStorage.setItem('termLoanData', JSON.stringify(Object.assign({ next: 'Savings - Done.html', back: location.pathname.split('/').pop() + location.search }, data))); location.href = 'Term Loan - Enter PIN.html'; };
+  function miniStatement(kind, id, name) {
+    pinStep({ kind: kind === 'fixed' ? 'sav-fd-mini' : 'sav-mini', group: kind === 'group', title: 'Mini Statement · ' + name, id, name, amount: 0, sub: '<b>Last 5 transactions</b>' });
+  }
+  function closeStep(kind, id) {
+    location.href = kind === 'fixed' ? `Fixed Deposit - Account.html?id=${id}&close=1&menu=20261119c` : `Savings - Pocket.html?id=${id}&close=1`;
+  }
+  function accountsIn(S, scope) {
+    const out = [];
+    if (['all', 'individual', 'target'].includes(scope)) S.pockets.filter(p => scope === 'all' || p.kind === scope)
+      .forEach(p => out.push({ kind: p.kind, id: p.id, name: p.name, sub: (p.kind === 'target' ? 'Target Saving' : 'Individual Saving') + ' · ' + fmt(SV.balanceOf(p)) + ' ETB' }));
+    if (['all', 'fixed'].includes(scope)) SV.openDeposits(S).forEach(a => out.push({ kind: 'fixed', id: a.id, name: a.name, sub: 'Fixed Deposit · ' + fmt(a.principal) + ' ETB' }));
+    if (['all', 'group'].includes(scope)) SV.groupsOf(S).forEach(g => out.push({ kind: 'group', id: g.id, name: g.name, sub: 'Group Saving · ' + fmt(SV.balanceOf(g)) + ' ETB' }));
+    return out;
+  }
+  function pickAccount({ scope = 'all', purpose = 'mini' } = {}) {
+    const S = SV.load();
+    const list = accountsIn(S, scope).filter(a => purpose !== 'close' || a.kind !== 'group');   // groups close from the group itself
+    const go = a => purpose === 'close' ? closeStep(a.kind, a.id) : miniStatement(a.kind, a.id, a.name);
+    if (!list.length) { const t = document.getElementById('toast'); if (t) { t.textContent = 'No savings yet'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); } return; }
+    if (list.length === 1) return go(list[0]);
+    let sh = document.getElementById('svPick');
+    if (!sh) {
+      const st = document.createElement('style');
+      st.textContent = `#svPickScrim{position:absolute;inset:0;z-index:200;background:rgba(0,0,0,.42);opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s}#svPickScrim.show{opacity:1;visibility:visible}
+        #svPick{position:absolute;left:0;right:0;bottom:0;z-index:201;max-height:80%;overflow-y:auto;background:#FFF;border-radius:28px 28px 0 0;padding:10px 16px 22px;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}#svPick.show{transform:none}
+        #svPick .g{width:40px;height:4px;border-radius:2px;background:#D8D8DE;margin:0 auto 14px}#svPick .t{text-align:center;font-size:16px;font-weight:600;margin-bottom:8px;color:#1C1C21}
+        #svPick button{width:100%;display:flex;align-items:center;gap:12px;padding:12px 4px;border:none;border-bottom:1px solid #F1F1F4;background:none;text-align:left;font-family:Switzer,sans-serif;cursor:pointer}
+        #svPick button:last-child{border-bottom:none}#svPick i{width:40px;height:40px;border-radius:12px;background:#FFF1F2;display:grid;place-items:center;flex-shrink:0}
+        #svPick i svg{width:20px;height:20px;stroke:#FE353D;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}#svPick b{display:block;font-size:14px;font-weight:600;color:#1C1C21}#svPick small{display:block;margin-top:2px;font-size:12px;color:#7C7C87}#svPick span{flex:1;min-width:0}#svPick .cv{width:14px;height:14px;flex-shrink:0;stroke:#8A8A94;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}`;
+      document.head.appendChild(st);
+      const host = document.querySelector('.phone-frame') || document.body;
+      const scrim = document.createElement('div'); scrim.id = 'svPickScrim';
+      sh = document.createElement('div'); sh.id = 'svPick'; sh.setAttribute('role', 'dialog');
+      host.append(scrim, sh);
+      scrim.onclick = () => { scrim.classList.remove('show'); sh.classList.remove('show'); };
+    }
+    sh.innerHTML = `<div class="g"></div><p class="t">${purpose === 'close' ? 'Close which saving?' : 'Mini Statement for'}</p>` +
+      list.map((a, n) => `<button type="button" data-n="${n}"><i>${IC[a.kind] || IC.individual}</i><span><b>${a.name}</b><small>${a.sub}</small></span>${IC.cv}</button>`).join('');
+    sh.querySelectorAll('button').forEach(b => b.onclick = () => go(list[+b.dataset.n]));
+    document.querySelectorAll('.sheet.show').forEach(x => x.classList.remove('show'));
+    document.getElementById('svPickScrim').classList.add('show'); sh.classList.add('show');
+  }
+  window.SVUI = { IC, av, pocketCard, depositCard, groupCard, empty, memberPicker, autoCard, noticeBanner, roundActions, recurring, miniStatement, pickAccount };
 })();

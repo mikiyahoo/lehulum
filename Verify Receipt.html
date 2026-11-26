@@ -284,9 +284,22 @@
     background: #1C1C21; color: #FFF; padding: 10px 18px; border-radius: 10px;
     font-family: Switzer, sans-serif; font-size: 12.5px; font-weight: 500;
     box-shadow: 0 4px 16px rgba(0,0,0,0.25); opacity: 0; pointer-events: none;
-    transition: all 0.25s ease; z-index: 50; white-space: nowrap;
+    transition: all 0.25s ease; z-index: 50; white-space: nowrap; max-width: calc(100% - 32px); overflow: hidden; text-overflow: ellipsis;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* Error toast: white pill, red X badge */
+  .toast.err {
+    left: 16px; right: 16px; transform: translateY(20px); max-width: none;
+    display: flex; align-items: center; gap: 10px;
+    background: #FFF; color: #1C1C21; padding: 8px 14px 8px 8px; border-radius: 12px;
+    font-size: 14px; font-weight: 500; box-shadow: 0 6px 20px rgba(0,0,0,0.28);
+  }
+  .toast.err.show { transform: translateY(0); }
+  .toast.err .x {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 7px; background: #FE353D;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .toast.err .x svg { width: 12px; height: 12px; stroke: #FFF; stroke-width: 3; fill: none; stroke-linecap: round; }
 </style>
 <link rel="stylesheet" href="styles/device.css">
 </head>
@@ -412,8 +425,8 @@
       <button class="btn-done" onclick="goBack()">Done</button>
     </div>
 
-    <div class="toast" id="receiptToast"></div>
   </div>
+  <div class="toast" id="receiptToast"></div>
 </div>
 
 <script>
@@ -446,12 +459,20 @@
     }
   });
 
-  function showToast(msg) {
+  let toastTimer;
+  function showToast(msg, isErr) {
     const t = document.getElementById('receiptToast');
     if (!t) return;
-    t.textContent = msg;
+    t.classList.toggle('err', !!isErr);
+    if (isErr) {
+      t.innerHTML = '<span class="x"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span><span></span>';
+      t.lastChild.textContent = msg;
+    } else {
+      t.textContent = msg;
+    }
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 2800 : 2200);
   }
 
   function copyId() {
@@ -482,9 +503,25 @@
   }
 
   function simulateScan() {
+    if (new URLSearchParams(location.search).get('qr') === 'unsupported') return simulateUnsupported();
     document.getElementById('camHint').textContent = 'Code detected — verifying…';
     setTimeout(() => showResult('JDJSHJHJHDS'), 700);
   }
+  // A QR that isn't an M-PESA receipt (a merchant QR, a link, …)
+  function simulateUnsupported() {
+    document.getElementById('camHint').textContent = 'Code detected — checking…';
+    setTimeout(() => {
+      showToast('QR Not Supported!', true);
+      document.getElementById('camHint').textContent = "Scan the QR or transaction code on an M-PESA receipt to confirm it's genuine.";
+    }, 600);
+  }
+  // Sidebar entry ?qr=unsupported: auto-scan a non-receipt QR
+  if (new URLSearchParams(location.search).get('qr') === 'unsupported') setTimeout(simulateUnsupported, 1500);
+  // Test panel (ⓘ): try each scan result
+  window.TEST_ACTIONS = [
+    { label: 'Scan a receipt QR', desc: 'Valid M-PESA receipt → verified', run: () => simulateScan() },
+    { label: 'QR not supported', desc: 'Not an M-PESA receipt → toast', run: () => simulateUnsupported() }
+  ];
 
   function verifyCode() {
     const field = document.getElementById('codeInput');

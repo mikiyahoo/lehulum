@@ -8,15 +8,10 @@
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
   /* Quick Apply (Term Loan → Quick Apply): how much (amount box + slider, the
-     lowest offer minimum to the most you can borrow) and how long (14 / 30 / 60
-     days), then the offers that fit that choice, cheapest first. Tap one to choose
-     it, agree to the loan terms and Continue → confirmation sheet → M-PESA PIN.
-     (layout shared with Repay Loan) */
-  /* Repay a loan (Repayment → Repay, or Loan Details): the loan, the next
-     instalment, then Choose Repayment — type a partial amount, or tap Repay In
-     Full to put the full amount in the box — Continue → confirm sheet → PIN →
-     receipt. Repay In Full is the instalment, or with ?mode=all (Loan Details'
-     Repay All) the whole loan. ?id=<loan>. */
+     lowest offer minimum to the most you can borrow) and how long (the repayment
+     periods the offers have), then the offers that fit that choice, cheapest first.
+     Tap one to choose it, agree to the loan terms and Continue → confirmation sheet
+     (same as Apply) → M-PESA PIN → receipt (books the loan). */
   :root {
     --Primary: #FE353D;
     --Primary-Light: #FFF1F2;
@@ -38,7 +33,7 @@
   .icon-btn { width: 36px; height: 36px; border-radius: 50%; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .icon-btn:hover { background: rgba(0,0,0,0.05); }
   .icon-btn svg { width: 22px; height: 22px; stroke: var(--On-Surface); stroke-width: 1.8px; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .header-title { flex: 1; margin-right: 36px; text-align: center; color: var(--On-Surface); font-size: 17px; font-weight: 500; letter-spacing: 0.3px; }
+  .header-title { flex: 1; text-align: center; color: var(--On-Surface); font-size: 17px; font-weight: 500; letter-spacing: 0.3px; }
 
   .scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 12px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
   .scroll::-webkit-scrollbar { width: 0; }
@@ -46,14 +41,16 @@
   .card { background: #FFF; border-radius: 22px; box-shadow: 0 4px 16px rgba(15,23,42,0.06); }
 
 
-  .sec { margin: 6px 2px -4px; font-size: 15px; font-weight: 600; color: var(--On-Surface); }
+  .sec { margin: 6px 2px -4px; font-size: 15px; font-weight: 500; color: var(--On-Surface); }
   .pick { padding: 16px; }
-  .lbl { font-size: 13px; font-weight: 600; color: var(--On-Surface); }
+  .lbl { font-size: 14px; font-weight: 500; color: var(--On-Surface); }
   .amount { display: flex; align-items: center; gap: 8px; height: 58px; margin-top: 8px; padding: 0 16px; border: 1px solid #E6E6EA; border-radius: 14px; background: #F3F3F5; }
   .amount:focus-within { border-color: var(--Primary); background: #FFF; }
   .amount input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 22px; font-weight: 700; color: var(--On-Surface); }
   .amount small { font-size: 14px; font-weight: 600; color: var(--On-Surface-Low); }
   /* Money slider: lowest minimum on the left, most you can borrow on the right */
+  .limit { margin-top: 10px; font-size: 12.5px; color: var(--On-Surface-Low); }
+  .limit b { font-weight: 600; color: var(--On-Surface); }
   .slider { margin-top: 16px; }
   .slider input { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px; outline: none; cursor: pointer;
     background: linear-gradient(90deg, var(--Primary) var(--p, 0%), #ECECF0 var(--p, 0%)); }
@@ -80,21 +77,13 @@
   .offers { display: flex; flex-direction: column; gap: 10px; }
   .offer { padding: 14px; }
   .o-top { display: flex; align-items: center; gap: 12px; }
-  .o-top .logo { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #EFEFF2; background: #FFF; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
-  .o-top .logo img { width: 30px; height: 30px; object-fit: contain; }
+  .o-top .logo { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #EFEFF2; background: #FFF; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .o-top .logo img { width: 28px; height: 28px; object-fit: contain; }
   .o-top .info { flex: 1; min-width: 0; }
   .o-top b { display: block; font-size: 14.5px; font-weight: 700; color: var(--On-Surface); }
   .o-top small { display: block; margin-top: 2px; font-size: 12px; color: var(--On-Surface-Low); }
-  .best { flex-shrink: 0; padding: 3px 9px; border-radius: 999px; background: #E8F9EE; color: #167C2A; font-size: 10.5px; font-weight: 700; }
-  .o-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-  .o-grid div { padding: 8px 10px; border-radius: 12px; background: #F7F7F9; }
-  .o-grid small { display: block; font-size: 10.5px; color: var(--On-Surface-Low); }
-  .o-grid b { display: block; margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--On-Surface); white-space: nowrap; }
-  .o-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
-  .o-foot span { font-size: 12px; color: #55555E; }
-  .o-foot span b { color: var(--On-Surface); }
   .offer { cursor: pointer; border: 1.5px solid transparent; }
-  .offer.on { border-color: var(--Primary); background: #FFFBFB; }
+  .offer.on { border-color: var(--Primary); background: var(--Primary-Light); }
   .radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #D0D0D6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
   .offer.on .radio { border-color: var(--Primary); }
   .offer.on .radio::after { content: ''; width: 11px; height: 11px; border-radius: 50%; background: var(--Primary); }
@@ -111,7 +100,7 @@
   .sheet.show { transform: translateY(0); }
   .sheet-grip { width: 40px; height: 4px; border-radius: 2px; background: #D8D8DE; margin: 0 auto 18px; }
   .cf-head { position: relative; display: flex; align-items: center; gap: 12px; border: 1px solid #E6E6EA; border-radius: 16px; padding: 14px; }
-  .cf-head .logo { width: 42px; height: 42px; border-radius: 12px; border: 1px solid #EFEFF2; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .cf-head .logo { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #EFEFF2; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
   .cf-head .logo img { width: 30px; height: 30px; object-fit: contain; }
   .cf-head b { display: block; font-size: 15px; font-weight: 700; color: var(--On-Surface); }
   .cf-head small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--On-Surface-Low); }
@@ -126,7 +115,11 @@
   .cf-btn { flex: 1; height: 52px; border-radius: 14px; background: #FFF; font-family: Switzer, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
   .cf-btn.cancel { border: 1.5px solid #E0E0E4; color: #55555E; }
   .cf-btn.confirm { border: 1.5px solid var(--Primary); color: var(--Primary); }
-  .apply { height: 36px; padding: 0 20px; border: none; border-radius: 999px; background: var(--Primary); color: #FFF; font-family: Switzer, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 3px 10px rgba(254,53,61,0.25); }
+  /* ⋮ menu */
+  .menu-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 4px; border: none; background: none; text-align: left; cursor: pointer; font-family: Switzer, sans-serif; }
+  .menu-item + .menu-item { border-top: 1px solid #ECECEF; }
+  .menu-item b { flex: 1; font-size: 14px; font-weight: 500; color: var(--On-Surface); }
+  .menu-item svg { width: 17px; height: 17px; stroke: #A0A0AA; stroke-width: 2.2; fill: none; }
   .none { padding: 22px 16px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--On-Surface-Low); }
 </style>
 <link rel="stylesheet" href="styles/device.css">
@@ -146,12 +139,14 @@
     <div class="header-nav">
       <button class="icon-btn" onclick="location.href='Term Loan.html'" aria-label="Back"><svg data-name="icon-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
       <span class="header-title">Quick Apply</span>
+      <button class="icon-btn" onclick="openMenu()" aria-label="More"><svg data-name="icon-more-vertical" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2" fill="#1C1C21"/><circle cx="12" cy="12" r="1.2" fill="#1C1C21"/><circle cx="12" cy="19" r="1.2" fill="#1C1C21"/></svg></button>
     </div>
 
     <div class="scroll">
       <div class="card pick">
-        <span class="lbl">How much do you need?</span>
+        <span class="lbl">Amount</span>
         <label class="amount"><input id="amt" inputmode="numeric" oninput="typed()"><small>ETB</small></label>
+        <p class="limit">Available limit: <b id="availLbl"></b></p>
         <div class="slider"><input type="range" id="range" oninput="slid()"></div>
         <div class="ends"><span>Minimum<b id="minLbl"></b></span><span>Maximum<b id="maxLbl"></b></span></div>
         <p class="err" id="err" style="display:none"></p>
@@ -159,11 +154,7 @@
 
       <div class="card pick">
         <span class="lbl">Repay in</span>
-        <div class="terms" id="terms">
-          <button class="term" type="button" data-d="14"><b>14</b><small>days</small></button>
-          <button class="term on" type="button" data-d="30"><b>30</b><small>days</small></button>
-          <button class="term" type="button" data-d="60"><b>60</b><small>days</small></button>
-        </div>
+        <div class="terms" id="terms"></div>
       </div>
 
       <p class="sec">Your selection</p>
@@ -186,6 +177,13 @@
     <div class="cf-rows" id="cfRows"></div>
     <div class="cf-actions"><button class="cf-btn cancel" type="button" onclick="closeConfirm()">Cancel</button><button class="cf-btn confirm" type="button" onclick="confirmLoan()">Apply</button></div>
   </div>
+
+  <div class="scrim" id="mScrim" onclick="closeMenu()"></div>
+  <div class="sheet" id="mSheet" role="dialog" aria-label="Quick Apply menu">
+    <div class="sheet-grip"></div>
+    <button class="menu-item" onclick="location.href='Term Loan - Help.html?view=faq'"><b>FAQ</b><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <button class="menu-item" onclick="location.href='Term Loan - Help.html?view=terms'"><b>Terms &amp; Conditions</b><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+  </div>
 </div>
 
 <script src="term-loan-store.js"></script>
@@ -197,15 +195,20 @@
   const MIN = Math.min(...TL.OFFERS.map(o => o.min));
   const MAX = Math.max(MIN, Math.min(avail, Math.max(...TL.OFFERS.map(o => o.max))));
   const STEP = 100;
-  let amount = Math.min(MAX, Math.max(MIN, 5000)), period = 30;
+  // Repayment periods: every distinct term the offers have
+  const PERIODS = [...new Set(TL.OFFERS.flatMap(o => o.days))].sort((a, b) => a - b);
+  let amount = Math.min(MAX, Math.max(MIN, 3000)), period = PERIODS.includes(30) ? 30 : PERIODS[0];
 
   $('range').min = MIN; $('range').max = MAX; $('range').step = STEP;
   $('range').value = amount;
   $('minLbl').textContent = n0(MIN) + ' ETB'; $('maxLbl').textContent = n0(MAX) + ' ETB';
+  $('availLbl').textContent = fmt(avail) + ' ETB';
+  $('terms').innerHTML = PERIODS.map(d => `<button class="term${d === period ? ' on' : ''}" type="button" data-d="${d}"><b>${d}</b><small>days</small></button>`).join('');
   document.querySelectorAll('.term').forEach(b => b.onclick = () => {
     period = +b.dataset.d; document.querySelectorAll('.term').forEach(x => x.classList.toggle('on', x === b)); render();
   });
 
+  // The amount box reads "3,000 ETB"
   function slid() { amount = +$('range').value; $('amt').value = amount.toLocaleString('en-US'); render(); }
   function typed() {
     const v = Number(($('amt').value || '').replace(/[^\d]/g, ''));
@@ -213,13 +216,8 @@
     amount = v; $('range').value = Math.min(MAX, Math.max(MIN, v)); render();
   }
 
-  // An offer fits when the amount is within its range and it has a term in the chosen
-  // window: 14 days → up to 14, 30 → 15–30, 60 → 31–60 (the longest such term is used)
-  const WIN = { 14: [1, 14], 30: [15, 30], 60: [31, 60] };
-  function fits(o) {
-    const [lo, hi] = WIN[period], d = o.days.filter(x => x >= lo && x <= hi);
-    return amount >= o.min && amount <= Math.min(o.max, avail) && d.length ? Math.max(...d) : 0;
-  }
+  // An offer fits when the amount is within its range (and the limit left) and it has the chosen period
+  const fits = o => amount >= o.min && amount <= Math.min(o.max, avail) && o.days.includes(period);
   function render() {
     const p = (Math.min(MAX, Math.max(MIN, amount)) - MIN) / ((MAX - MIN) || 1) * 100;
     $('range').style.setProperty('--p', p + '%');
@@ -228,15 +226,12 @@
     $('err').textContent = amount > MAX ? `The most you can borrow is ${n0(MAX)} ETB.` : `The minimum is ${n0(MIN)} ETB.`;
     $('selAmt').textContent = amount ? n0(amount) + ' ETB' : '—';
     $('selDays').textContent = period + ' days';
-    const list = TL.OFFERS.map(o => ({ o, d: fits(o) })).filter(x => x.d).map(x => ({ ...x, q: TL.quote(x.o, amount, x.d) })).sort((a, b) => a.q.total - b.q.total);
+    const list = TL.OFFERS.filter(fits).map(o => ({ o, d: period, q: TL.quote(o, amount, period) })).sort((a, b) => a.q.total - b.q.total);
     $('count').textContent = list.length ? list.length + (list.length === 1 ? ' offer' : ' offers') : '';
     shown = list;
-    if (!list.some(x => x.o.id === chosen)) chosen = list.length ? list[0].o.id : null;   // keep the choice if it still fits, else the best
-    $('offers').innerHTML = list.length ? list.map(({ o, d, q }, i) => `<div class="card offer${o.id === chosen ? ' on' : ''}" onclick="choose('${o.id}')">
-        <div class="o-top"><span class="logo"><img src="${o.logo}" alt=""></span><span class="info"><b>${o.name}</b><small>${o.lender} · ${o.productLabel}</small></span>${i === 0 && list.length > 1 ? '<span class="best">Best offer</span>' : ''}<span class="radio"></span></div>
-        <div class="o-grid"><div><small>You get</small><b>${fmt(amount)} ETB</b></div><div><small>You repay</small><b>${fmt(q.total)} ETB</b></div>
-          <div><small>Fees</small><b>${fmt(q.access + q.dailyFee)} ETB</b></div><div><small>Repay in</small><b>${d} days${o.inst > 1 ? ' · ' + o.inst + ' parts' : ''}</b></div></div>
-        <div class="o-foot"><span>Due by <b>${TL.dateStr(q.due)}</b></span></div>
+    if (!list.some(x => x.o.id === chosen)) chosen = list.length ? list[0].o.id : null;   // keep the choice if it still fits, else the cheapest
+    $('offers').innerHTML = list.length ? list.map(({ o }) => `<div class="card offer${o.id === chosen ? ' on' : ''}" onclick="choose('${o.id}')">
+        <div class="o-top"><span class="logo"><img src="${o.logo}" alt=""></span><span class="info"><b>${o.name}</b><small>${o.lender} · ${o.productLabel}</small></span><span class="radio"></span></div>
       </div>`).join('')
       : `<div class="card none">No offer for <b>${amount ? n0(amount) + ' ETB' : 'this amount'}</b> over ${period} days.<br>Try a different amount or period.</div>`;
     ready();
@@ -253,23 +248,29 @@
   }
   function openConfirm() {
     const c = pick(); if (!c) return;
-    const { o, d, q } = c, pct = v => String(+(v * 100).toFixed(2));
+    document.activeElement && document.activeElement.blur();
+    const { o, q } = c, pct = v => String(+(v * 100).toFixed(2));
     $('cfLogo').src = o.logo; $('cfName').textContent = o.name; $('cfLender').textContent = o.lender;
+    // Repay By: "23 Dec 2026", or for instalments "09 Nov & 09 Dec, 2026"
+    const ds = q.instalments.map(i => new Date(i.due));
+    const due = ds.length > 1 ? ds.map(d => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })).join(' & ') + ', ' + ds[ds.length - 1].getFullYear() : TL.dateStr(q.due);
     const rows = [['To', 'Main account'], ['Loan Amount', fmt(amount) + ' ETB'], [`Access Fee (${pct(o.access)}%)`, fmt(q.access) + ' ETB'], [`Maintenance Fee (${pct(o.daily)}%)`, fmt(q.dailyFee) + ' ETB']]
       .concat(q.instalments.map(i => [`Installment ${i.n} of ${q.instalments.length}`, fmt(i.amount) + ' ETB']))
-      .concat([['Repay By', TL.dateStr(q.due)], ['Total Repayment', fmt(q.total) + ' ETB']]);
+      .concat([['Repay By', due], ['Total Repayment', fmt(q.total) + ' ETB']]);
     $('cfRows').innerHTML = rows.map(([k, v], i) => `<div class="cf-row${i === rows.length - 1 ? ' total' : ''}"><span>${k}:</span><b>${v}</b></div>`).join('');
     $('scrim').classList.add('show'); $('sheet').classList.add('show');
   }
   function closeConfirm() { $('scrim').classList.remove('show'); $('sheet').classList.remove('show'); }
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeConfirm(); });
+  function openMenu() { $('mScrim').classList.add('show'); $('mSheet').classList.add('show'); }
+  function closeMenu() { $('mScrim').classList.remove('show'); $('mSheet').classList.remove('show'); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeConfirm(); closeMenu(); } });
   // Same hand-off as Term Loan - Apply: the receipt books the loan
   function confirmLoan() {
     const { o, d, q } = pick();
     sessionStorage.setItem('termLoanData', JSON.stringify({
       kind: 'apply', offer: o.id, lender: o.lender, logo: o.logo, product: o.name,
       amount, days: d, access: q.access, dailyFee: q.dailyFee, total: q.total, instalments: q.instalments, due: q.due,
-      back: 'Term Loan - Quick Apply.html'
+      back: 'Term Loan - Quick Apply.html', btn: 'Continue'
     }));
     location.href = 'Term Loan - Enter PIN.html';
   }
