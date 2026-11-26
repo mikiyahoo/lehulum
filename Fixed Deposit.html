@@ -13,8 +13,9 @@
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
   /* Fixed Deposit home (Savings → Fixed Deposit). Total locked card, My Fixed
-     Deposits, How it works (only when nothing is
-     locked), the closed ones, and New Fixed Deposit. ⋯ → FAQs, Close Deposit. */
+     Deposits, the closed ones, and New Fixed Deposit pinned to the bottom. ⋯ → FAQs, Close Deposit. */
+  /* New Fixed Deposit stays pinned to the bottom while the list scrolls */
+  .bottom-bar { position: sticky; bottom: 0; z-index: 5; }
   .how h3 { font-size: 14.5px; font-weight: 700; color: var(--On-Surface); margin-bottom: 4px; }
   .step { display: flex; gap: 12px; padding: 10px 0; }
   .step em { width: 26px; height: 26px; border-radius: 50%; background: #FFF1F2; color: var(--Primary); font-style: normal; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -86,12 +87,6 @@
     </div>
     <div class="sec-head"><b>My Fixed Deposits</b><small id="cnt"></small></div>
     <div class="list" id="list"></div>
-    <div class="card how" id="how">
-      <h3>How it works</h3>
-      <div class="step"><em>1</em><span><b>Choose a period</b><small>Lock for 3, 6, 9 or 12 months. Longer earns more.</small></span></div>
-      <div class="step"><em>2</em><span><b>Deposit and earn daily</b><small>Interest builds up every day at a fixed rate.</small></span></div>
-      <div class="step"><em>3</em><span><b>Collect or roll over</b><small>At maturity, withdraw it all or start a new term. Withdrawing early loses the interest.</small></span></div>
-    </div>
     <div id="closedWrap" style="display:none"><div class="sec-head" style="margin-bottom:10px"><b>Closed</b></div><div class="list" id="closed"></div></div>
     <div class="bottom-bar"><button class="btn-primary" onclick="location.href='Fixed Deposit - Plans.html'">New Fixed Deposit</button></div>
   </div>
@@ -195,7 +190,6 @@
   const order = open.slice().sort((a, b) => (SV.fdStatus(b) === 'matured') - (SV.fdStatus(a) === 'matured') || new Date(SV.maturityOf(a)) - new Date(SV.maturityOf(b)));
   $('cnt').textContent = open.length ? open.length + ' active' : '';
   $('list').innerHTML = order.length ? order.map(SVUI.depositCard).join('') : SVUI.empty('fixed');
-  $('how').style.display = open.length ? 'none' : '';
   if (shut.length) { $('closedWrap').style.display = ''; $('closed').innerHTML = shut.slice().reverse().map(SVUI.depositCard).join(''); }
   if (!open.length) $('closeItem').style.display = 'none';
 

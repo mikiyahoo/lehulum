@@ -153,7 +153,7 @@
     $('acts').innerHTML = SVUI.roundActions([
       { label: 'Contribute', ic: 'plus', kind: 'main', onclick: `location.href='Savings - Amount.html?group=${g.id}'` },
       SVUI.recurring(g.auto, `Savings - Auto Save.html?group=${g.id}`),
-      admin ? { label: 'Withdraw', ic: 'down', circle: true, kind: can ? '' : 'off', onclick: 'withdraw()' }
+      admin ? { label: 'Withdraw', ic: 'down', kind: can ? '' : 'off', onclick: 'withdraw()' }
             : { label: 'Members', ic: 'members', onclick: "$('membersCard').scrollIntoView({behavior:'smooth'})" }
     ]);
 
