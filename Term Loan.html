@@ -15,7 +15,7 @@
   /* Term Loan dashboard (the green product mockups, in Lehulum style): the red
      limit card with the credit-score chip, how much of the limit is used, the
      loans taken (swipe), and loan offers: every offer as its own row (All Banks / loan type
-     dropdowns filter) — a row opens Term Loan - Apply.html for that offer. ?partner=boa shows the M-PESA × BOA co-brand. */
+     dropdowns filter) — a row opens Term Loan - Apply.html for that offer. */
   :root { --Font: Switzer, sans-serif; --Primary: #FE353D; --Primary-Light: #FFF1F2; --On-Surface: #1C1C21; --On-Surface-Low: #7C7C87; }
   body { font-family: var(--Font); }
   .phone-frame { display: flex; flex-direction: column; }
@@ -33,11 +33,6 @@
   .icon-btn svg { width: 22px; height: 22px; stroke: var(--On-Surface); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .header-title { color: var(--On-Surface); font-size: 17px; font-weight: 500; letter-spacing: 0.3px; flex: 1; text-align: center; }
 
-  /* Co-brand strip (partner variant) */
-  .cobrand { display: none; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; padding: 10px; background: #FFF; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); font-size: 12px; font-weight: 600; color: var(--On-Surface-Low); }
-  .cobrand.show { display: flex; }
-  .cobrand img { height: 22px; width: auto; }
-  .cobrand .x { color: #B0B0B8; font-weight: 500; }
 
   /* Credit-score gauge in the card's top-right (in place of an illustration) */
   .gauge { position: absolute; right: 14px; top: 14px; width: 116px; padding: 0; border: none; background: none; cursor: pointer; font-family: var(--Font); text-align: center; color: var(--On-Surface); }
@@ -183,7 +178,6 @@
     </div>
 
     <!-- Partner variant: M-PESA × Bank of Abyssinia -->
-    <div class="cobrand" id="cobrand"><img src="assets/M-PESA-red-logo.svg" alt="M-PESA"><span class="x">×</span><img src="assets/banks logo/abyssinya-bank.png" alt="Bank of Abyssinia"><span>Bank of Abyssinia</span></div>
 
     <!-- Limit card: the shared Saving & Credit card -->
     <div class="sc-card" style="margin-bottom:10px">
@@ -250,7 +244,6 @@
   const $ = id => document.getElementById(id);
   const { fmt } = TL;
   const params = new URLSearchParams(location.search);
-  if (params.get('partner') === 'boa') $('cobrand').classList.add('show');
 
   // Limit and loans
   const loans = TL.load();
