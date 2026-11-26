@@ -181,13 +181,13 @@
   // Update score: upload a bank statement. While the bank reviews it the score shows
   // "Updating…"; when it lands the page refreshes with the new score.
   // Scenario: ?fayda=0 starts with the Fayda ID not linked (Update score → Link Fayda ID first)
-  if (new URLSearchParams(location.search).get('fayda') === '0') TL.linkFayda(false);
+  if (new URLSearchParams(location.search).get('fayda') === '0') { TL.linkFayda(false); history.replaceState(null, '', location.pathname); }
   // Just activated, no score yet → the no-score screen
   if (sessionStorage.getItem('tlNoScore')) location.replace('Credit Score - No Score.html');
   // Update Score → Update Credit Score (it asks to link Fayda first when it isn't)
   function updateScore() {
     if (TL.scorePending()) return;
-    location.href = 'Credit Score - Upload Statement.html' + (TL.faydaLinked() ? '' : '?fayda=0');
+    location.href = 'Credit Score - Upload Statement.html';   // asks for Fayda there only if not linked yet
   }
   if (TL.scorePending()) {
     $('updated').textContent = 'Updating…';

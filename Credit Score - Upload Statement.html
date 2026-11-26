@@ -252,7 +252,8 @@
   const $ = id => document.getElementById(id);
   // The National ID comes from Fayda: not linked yet → link it first (linked → never asked)
   // Scenario ?fayda=0 (sidebar): start with Fayda not linked → the Link Your Fayda ID popup
-  if (new URLSearchParams(location.search).get('fayda') === '0') TL.linkFayda(false);
+  // Applied once, then dropped from the address: once Fayda is linked it is never asked again
+  if (new URLSearchParams(location.search).get('fayda') === '0') { TL.linkFayda(false); history.replaceState(null, '', location.pathname); }
   if (!TL.faydaLinked()) document.getElementById('fayda').classList.add('show');
   function remindLater() { if (history.length > 1 && document.referrer) history.back(); else location.href = 'Credit Score.html'; }
   const BANK_DIR = 'assets/banks logo/';
