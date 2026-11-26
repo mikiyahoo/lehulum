@@ -334,19 +334,6 @@
 
     </div>
 
-    <!-- Bottom Actions -->
-    <div class="bottom-actions">
-      <button class="action-btn" onclick="addToFavorite()">
-        <div class="action-icon"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
-        <span class="action-label">Add to Favorite</span>
-      </button>
-      <span class="action-sep" data-shape="line" data-name="line"></span>
-      <!-- Loan received: Download Detail · repayment: Repay Again -->
-      <button class="action-btn" onclick="secondAction()">
-        <div class="action-icon" id="secondIc"></div>
-        <span class="action-label" id="secondLbl"></span>
-      </button>
-    </div>
 
       <!-- Share sheet — lets the customer share the receipt through a common
        set of apps instead of the old single-toast placeholder. -->
@@ -560,8 +547,6 @@
     download: '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v9"/><path d="M12 8v9M8 13l4 4 4-4"/><path d="M4 21h16"/></svg>',
     again: '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 2 21 6 17 10"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 22 3 18 7 14"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>'
   };
-  $('secondIc').innerHTML = isRepay ? ICONS.again : ICONS.download;
-  $('secondLbl').textContent = isRepay ? 'Repay Again' : 'Download Detail';
   function secondAction() {
     if (!isRepay) return downloadReceipt();
     if (isErrif) return location.href = 'Overdraft.html';
