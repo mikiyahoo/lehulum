@@ -145,8 +145,9 @@
       window.location.href = 'Merchant Payment_Service Unavailable.html';
       return;
     }
+    // Straight to the next page — no confirm sheet
     document.getElementById('camHint').textContent = 'QR code detected';
-    document.getElementById('resultOverlay').classList.add('show');
+    setTimeout(payScannedMerchant, 400);
   }
 
   function closeScan() {

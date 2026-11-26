@@ -73,28 +73,33 @@
     display: flex; flex-direction: column;
   }
   .scrollable-content::-webkit-scrollbar { width: 0; }
+  .scrollable-content > * { flex-shrink: 0; }
 
   /* Receipt Card */
   .receipt-card {
-    width: 100%; background: #FAFAFA; border: 1px solid #EFEFF2; border-radius: 20px;
-    padding: 46px 18px 22px;
+    width: 100%; background: #FAFAFA; border: 1.5px solid #D9D9DE; border-radius: 20px;
+    padding: 22px 18px 0;
     display: flex; flex-direction: column; align-items: center;
     position: relative; overflow: visible;
-    margin-top: 34px;
+    margin-top: 6px; margin-bottom: 52px;
   }
+  /* Ticket notches on both sides, level with the dashed line */
+  .notch { position: absolute; top: 150px; width: 14px; height: 24px; background: #F5F5F5; border: 1.5px solid #D9D9DE; z-index: 3; }
+  .notch.l { left: -1.5px; border-left: none; border-radius: 0 12px 12px 0; }
+  .notch.r { right: -1.5px; border-right: none; border-radius: 12px 0 0 12px; }
+  .dash { width: 100%; border-top: 1.5px dashed #CFCFD6; margin: 0 0 16px; }
 
   /* Green success circle overlapping the top */
   .success-icon-wrapper {
-    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-    width: 60px; height: 60px; border-radius: 50%;
-    background: var(--Success-Light); border: 2px solid var(--Success);
+    width: 56px; height: 56px; border-radius: 16px; margin-bottom: 14px;
+    background: var(--Success-Light); border: 2px solid #4ADE80;
     display: flex; align-items: center; justify-content: center;
-    z-index: 10; box-shadow: 0 0 0 5px #F5F5F5;
+    position: relative; z-index: 10;
   }
   .success-icon-wrapper svg { width: 26px; height: 26px; stroke: var(--Success); stroke-width: 2.5; fill: none; }
 
   /* Receipt Header */
-  .receipt-header { width: 100%; text-align: center; margin-bottom: 18px; }
+  .receipt-header { width: 100%; text-align: center; margin-bottom: 18px; padding-bottom: 0; }
   .receipt-header h2 {
     color: var(--On-Surface); font-family: Switzer, sans-serif;
     font-size: 20px; font-weight: 700; letter-spacing: -0.2px; margin-bottom: 6px;
@@ -169,6 +174,7 @@
     padding: 6px; border: 3px solid var(--Primary);
     border-radius: 14px; background: #FFF;
     display: inline-block; position: relative; z-index: 2;
+    margin-bottom: -46px;   /* sits on the card's bottom edge */
   }
   .qr-wrapper img { width: 76px; height: 76px; display: block; }
 
@@ -289,8 +295,10 @@
 
         <div class="receipt-header">
           <h2 id="title">Loan Received</h2>
-          <p>Thank you for choosing M-PESA Lehulum</p>
+          <p>Thank you for Choosing M-PESA Lehulum</p>
         </div>
+        <span class="dash" data-shape="line" data-name="line"></span>
+        <span class="notch l"></span><span class="notch r"></span>
 
         <div class="transaction-details">
           <!-- Same row style as the Bill Payment and Send Money receipts; filled below -->
@@ -399,7 +407,7 @@
   const isErrif = data.kind === 'errif-repay';       // Errif overdraft repayment
   const isRepay = data.kind === 'repay' || isErrif;
   const amount = parseFloat(data.amount || 0);
-  const dstr = v => new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const dstr = v => new Date(v).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   const pct = v => v ? (v * 100).toFixed(2).replace(/\.?0+$/, '') : '0';
 
   // Disbursement or repayment rows
@@ -437,15 +445,14 @@
     const l = TL.load().find(x => x.id === data.loanId) || {}, o = TL.offer(l.offer) || {};
     const inst = l.instalments || [], n = inst.length || 1;
     const fees = l.total ? amount * (l.total - l.amount) / l.total : 0;   // the fee share of this payment
-    const access = l.total ? amount * (l.amount * (o.access || 0)) / l.total : 0;
     return [
       ["Payer's Name", 'Aster Mequanent'],
       ["Payer's Phone Number", '0712131415'],
       ['Partner Bank', data.lender],
       ['Loan Product', data.product],
+      // Receipt format: Repayment Amount + Maintenance Fee = Total Repayment
       ['Repayment Amount', fmt(amount - fees) + ' ETB'],
-      [`Access Fee (${pct(o.access)}%)`, fmt(access) + ' ETB'],
-      [`Maintenance Fee (${pct(o.daily)}%)`, fmt(fees - access) + ' ETB'],
+      [`Maintenance Fee (${pct(o.daily)}%)`, fmt(fees) + ' ETB'],
       [`Penalty Fee (${pct(o.penalty)}%)`, '0.00 ETB'],
       ['Paid For', data.which === 'all' ? 'Full balance' : `Instalment ${data.which} of ${n}` + (data.part ? ' (part)' : '')],
       ['Last Repayment Date', inst.length ? dstr(inst[n - 1].due) : '—'],
@@ -528,7 +535,23 @@
     document.body.removeChild(ta);
   }
 
-  function downloadReceipt() { ReceiptPDF.download({ root: '.receipt-card', name: 'M-PESA Term Loan', toast: showToast }); }
+  // Download Detail: the loan's contract detail
+  function downloadReceipt() {
+    const o = TL.offer(data.offer) || {}, inst = data.instalments || [], E = v => fmt(v) + ' ETB';
+    const rowsOf = (title, list) => ({ title, rows: list });
+    ReceiptPDF.contract({ name: 'M-PESA Term Loan', title: 'Loan Contract Detail', ref: data.ref || data.loanId || '—', status: isRepay ? 'Repayment received' : 'Active',
+      qr: ($('qrCode') || {}).src || '',
+      sections: [
+        rowsOf('Borrower', [['Name', 'Aster Mequanent'], ['Phone Number', '0712131415'], ['Credit Score', TL.SCORE ? TL.SCORE.value + ' · ' + TL.SCORE.label : '—'], ['Disbursed To', 'M-PESA Main Account']]),
+        rowsOf('Loan', [['Loan Product', data.product || '—'], ['Partner Bank', data.lender || '—'], ['Loan Amount', E(data.amount)], ['Total Repayment', E(data.total || data.amount)],
+          [`Access Fee (${pct(o.access)}%)`, E(data.access || 0)], [`Maintenance Fee (${pct(o.daily)}%)`, E(data.dailyFee || 0)], [`Penalty (${pct(o.penalty)}% daily)`, 'If late'], ['Repay By', data.due ? dstr(data.due) : '—']]),
+        rowsOf('Instalments', inst.map(i => [`Instalment ${i.n} of ${inst.length}`, E(i.amount) + ' · ' + dstr(i.due)])),
+        rowsOf('This Transaction', [['Transaction Type', isRepay ? 'Loan Repayment' : 'Term Loan Disbursement'], ['Amount', E(amount)], ['Transaction ID', data.ref || '—'], ['Date', new Date().toLocaleString('en-GB')]])
+      ],
+      terms: ['The loan is repaid from the M-PESA wallet in the instalments shown above.', `A late instalment adds a ${pct(o.penalty)}% daily penalty and can lower the credit score.`,
+        'The loan can be repaid early at any time without extra charges.', 'M-PESA will never ask for your PIN. Keep this document for your records.'],
+      toast: showToast });
+  }
   // PayPal withdrawals return to the PayPal hub; other top-ups to Home
   function goHome() { window.location.href = (isErrif ? 'Overdraft.html' : 'Term Loan.html') + '?done=' + (isErrif && data.turnOff ? 'off' : isRepay ? 'repay' : 'apply'); }
   function addToFavorite() { showToast('Added to favorites!'); }
@@ -582,6 +605,6 @@
 </script>
 <script src="test-scenarios-data.js"></script>
 <script src="test-scenarios.js"></script>
-<script src="components/receipt-pdf.js?v=1"></script>
+<script src="components/receipt-pdf.js?v=3"></script>
 </body>
 </html>

@@ -68,6 +68,17 @@
 
   /* Repayment period — segmented pills */
   .terms-seg { display: flex; gap: 8px; }
+  /* Instalments: one row each (1 of 1, or 1 of 2 + 2 of 2) */
+  .inst-card { display: none; padding: 4px 16px; }
+  .inst-card.show { display: block; }
+  .inst { padding: 12px 0; }
+  .inst + .inst { border-top: 1px solid #F1F1F4; }
+  .inst > b { display: block; font-size: 13.5px; font-weight: 600; color: var(--On-Surface); margin-bottom: 8px; }
+  .inst .r { display: flex; justify-content: space-between; align-items: flex-end; }
+  .inst .r small { display: block; font-size: 11px; color: var(--On-Surface-Low); }
+  .inst .r span > b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 700; color: var(--On-Surface); }
+  .inst .r .due { text-align: right; }
+  .inst .r .due b { color: var(--Primary); }
   .seg { flex: 1; height: 44px; border-radius: 12px; border: 1.5px solid var(--Border); background: #FFF; font-size: 13.5px; font-weight: 700; color: var(--On-Surface); cursor: pointer; }
   .seg.on { border-color: var(--Primary); background: var(--Primary-Light); color: var(--Primary); }
 
@@ -143,7 +154,7 @@
       </div>
 
       <div class="card">
-        <label class="field-label gap" for="amount">Enter Amount</label>
+        <label class="field-label gap" for="amount">Amount</label>
         <div class="field" id="amountField">
           <input id="amount" type="text" inputmode="decimal" placeholder="e.g. 1,000" autocomplete="off">
           <span class="suffix">ETB</span>
@@ -151,9 +162,11 @@
         <div class="hint" id="limitHint"></div>
         <div class="err-text" id="err"></div>
 
-        <div class="field-label gap">Repay in</div>
-        <div class="terms-seg" id="terms"></div>
+        <div id="termsBox"><div class="field-label gap">Repay in</div>
+        <div class="terms-seg" id="terms"></div></div>
       </div>
+
+      <div class="card inst-card" id="instCard"></div>
 
     </div>
 
@@ -201,7 +214,9 @@
   $('oName').textContent = $('cfName').textContent = offer.name;
   $('oLender').textContent = $('cfLender').textContent = offer.lender;
   $('oTag').textContent = offer.productLabel;
-  $('limitHint').innerHTML = `Available limit <b>${fmt(avail)} ETB</b>`;
+  $('limitHint').innerHTML = `Available limit: <b>${fmt(avail)} ETB</b>`;
+  // Only one repayment period → no chooser; the instalment rows show the dates
+  if (offer.days.length < 2) $('termsBox').style.display = 'none';
   $('sAccP').textContent = (offer.access * 100).toFixed(0) + '%';
   $('sDayP').textContent = String(+(offer.daily * 100).toFixed(2)) + '%';
   $('pen').textContent = (offer.penalty * 100).toFixed(1) + '%';
@@ -228,6 +243,12 @@
     $('sAcc').textContent = fmt(q.access) + ' ETB';
     $('sDay').textContent = fmt(q.dailyFee) + ' ETB';
     $('sTotal').textContent = fmt(q.total) + ' ETB';
+    // Instalment rows under the amount: repayment amount, due in N days, the date
+    const N = q.instalments.length, DAY = 864e5;
+    $('instCard').innerHTML = q.instalments.map(i => `<div class="inst"><b>Instalment ${i.n} of ${N}</b>
+      <div class="r"><span><small>Repayment amount</small><b>${fmt(i.amount)} ETB</b></span>
+      <span class="due"><small>Due in ${Math.round((new Date(i.due) - Date.now()) / DAY)} days</small><b>${TL.dateStr(i.due)}</b></span></div></div>`).join('');
+    $('instCard').classList.toggle('show', a > 0);
     $('sched').innerHTML = q.instalments.map(i => `<div class="cf-row"><span>Installment ${i.n} of ${q.instalments.length}:</span><b>${fmt(a ? i.amount : 0)} ETB</b></div>`).join('');
     const bad = a > 0 && (a < offer.min || a > MAX);
     $('err').textContent = a > MAX ? (a > avail ? 'More than your available limit.' : 'More than this offer allows.') : a > 0 && a < offer.min ? `Minimum is ${fmt(offer.min)} ETB.` : '';
@@ -239,7 +260,10 @@
   function openConfirm() {
     if ($('continueBtn').disabled) return;
     document.activeElement && document.activeElement.blur();
-    $('cfDue').textContent = TL.dateStr(q.due);
+    // Repay By: "11 Nov, 2026" or "09 Nov & 09 Dec, 2026"
+    const ds = q.instalments.map(i => new Date(i.due));
+    const dm = d => d.toLocaleDateString('en-GB', { day: ds.length > 1 ? '2-digit' : 'numeric', month: 'short' });
+    $('cfDue').textContent = ds.map(dm).join(' & ') + ', ' + ds[ds.length - 1].getFullYear();
     $('scrim').classList.add('show'); $('sheet').classList.add('show');
   }
   function closeConfirm() { $('scrim').classList.remove('show'); $('sheet').classList.remove('show'); }

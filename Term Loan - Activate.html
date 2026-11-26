@@ -44,6 +44,17 @@
   .note { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #FFF1F2; }
   .note i { width: 30px; height: 30px; border-radius: 50%; background: var(--Primary, #FE353D); color: #FFF; font-style: normal; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: Switzer, sans-serif; }
   .note p { font-size: 12.5px; line-height: 1.45; color: #2B2C3A; }
+  /* Terms checkbox (same as Savings activation) */
+  .oi-note { position: relative; min-height: 56px; display: flex; align-items: center; gap: 12px; padding: 10px 13px; border-radius: 16px; background: #FFF1F2; cursor: pointer; }
+  .oi-note input { position: absolute; opacity: 0; pointer-events: none; }
+  .oi-check { width: 22px; height: 22px; flex: 0 0 22px; display: grid; place-items: center; border: 2px solid #C9C9D1; border-radius: 6px; background: #FFF; transition: background .15s, border-color .15s; }
+  .oi-check svg { width: 14px; height: 14px; stroke: #FFF; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+  .oi-note input:checked + .oi-check { border-color: var(--Primary, #FE353D); background: var(--Primary, #FE353D); }
+  .oi-note input:checked + .oi-check svg { opacity: 1; }
+  .oi-note input:focus-visible + .oi-check { outline: 2px solid var(--Primary, #FE353D); outline-offset: 2px; }
+  .oi-note p { margin: 0; color: #101A38; font-size: 13.5px; line-height: 1.35; }
+  .oi-note a { color: var(--Primary, #FE353D); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+  .btn-primary:disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
   .btn-primary { width: 100%; height: 52px; border: none; border-radius: 14px; background: var(--Primary, #FE353D); color: #FFF; font-family: Switzer, sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 16px rgba(254,53,61,0.28); }
   .btn-outline { width: 100%; height: 48px; margin-top: -4px; border: 1.5px solid #E2E2E7; border-radius: 14px; background: #FFF; color: #55555E; font-family: Switzer, sans-serif; font-size: 14.5px; font-weight: 500; cursor: pointer; }
 </style>
@@ -92,9 +103,9 @@
         </div>
       </div>
 
-      <div class="note"><i>i</i><p>Accept the terms to get your loan and repay according to the agreed schedule.</p></div>
+      <label class="oi-note"><input type="checkbox" id="tlAgree" onchange="document.getElementById('tlGo').disabled = !this.checked"><span class="oi-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><p>Accept the terms to get your loan <a href="Term Loan - Help.html?view=terms" onclick="event.stopPropagation()">Term and Condition</a> and repay according to the agreed schedule.</p></label>
 
-      <button class="btn-primary" onclick="activate()">Activate</button>
+      <button class="btn-primary" id="tlGo" disabled onclick="activate()">Activate</button>
       <button class="btn-outline" onclick="notNow()">Not now</button>
     </div>
   </div>
@@ -102,9 +113,18 @@
 
 <script>
   // Activate once per session: Term Loan opens straight to the dashboard afterwards
+  // ?first=1 (sidebar "First Activation"): start over as a brand-new customer
+  if (new URLSearchParams(location.search).get('first') === '1') {
+    try { ['termLoanActive', 'tlNoScore', 'termLoanData'].forEach(k => sessionStorage.removeItem(k)); } catch (e) {}
+  }
+  // Activate → M-PESA PIN → Activation Submitted (the PIN page turns Term Loan on)
   function activate() {
-    try { sessionStorage.setItem('termLoanActive', '1'); } catch (e) {}
-    location.href = 'Term Loan - Activation Submitted.html';
+    sessionStorage.setItem('termLoanData', JSON.stringify({
+      kind: 'tl-activate', title: 'Activate Term Loan', initials: 'LC',
+      sub: '<b>Available Limit:</b> 0.00 ETB', btn: 'Activate',
+      back: 'Term Loan - Activate.html', next: 'Term Loan - Activation Submitted.html'
+    }));
+    location.href = 'Term Loan - Enter PIN.html';
   }
   function notNow() { location.href = 'Credit & Saving.html'; }
 </script>

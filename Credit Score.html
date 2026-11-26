@@ -89,6 +89,7 @@
   .tip p { margin-top: 3px; font-size: 12px; line-height: 1.5; color: #55555E; }
 
   .bottom-bar { flex-shrink: 0; padding: 10px 16px 18px; background: var(--Background); }
+  .btn-outline { width: 100%; height: 50px; margin-top: 10px; border: 1px solid #D8D8DE; border-radius: 14px; background: #FFF; color: var(--On-Surface); font-family: Switzer, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
   .btn-primary { width: 100%; height: 52px; border: none; border-radius: 14px; background: var(--Primary); color: #FFF; font-family: Switzer, sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 16px rgba(254,53,61,0.25); }
   .toast { position: absolute; left: 50%; bottom: 96px; transform: translate(-50%, 10px); background: #1C1C21; color: #FFF; font-size: 13px; padding: 10px 14px; border-radius: 12px; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; white-space: nowrap; z-index: 140; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
@@ -122,8 +123,7 @@
           <p>Your credit score is in a good range.</p>
         </div>
         <div class="bands" id="bands"></div>
-        <div class="upd"><span>Last updated: <b id="updated"></b></span>
-          <button type="button" id="updBtn" onclick="updateScore()"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>Update score</button></div>
+        <div class="upd"><span>Last updated: <b id="updated"></b></span></div>
       </div>
 
       <div class="card">
@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    <div class="bottom-bar"><button class="btn-primary" onclick="goBack()">Continue</button></div>
+    <div class="bottom-bar"><button class="btn-primary" id="updBtn" onclick="updateScore()">Update Score</button><button class="btn-outline" onclick="goBack()">Not Now</button></div>
   </div>
   <div class="toast" id="toast"></div>
 </div>
@@ -182,10 +182,12 @@
   // "Updating…"; when it lands the page refreshes with the new score.
   // Scenario: ?fayda=0 starts with the Fayda ID not linked (Update score → Link Fayda ID first)
   if (new URLSearchParams(location.search).get('fayda') === '0') TL.linkFayda(false);
+  // Just activated, no score yet → the no-score screen
+  if (sessionStorage.getItem('tlNoScore')) location.replace('Credit Score - No Score.html');
+  // Update Score → Update Credit Score (it asks to link Fayda first when it isn't)
   function updateScore() {
     if (TL.scorePending()) return;
-    // Fayda ID not linked yet → link it first, then the statement upload
-    location.href = TL.faydaLinked() ? 'Credit Score - Upload Statement.html' : 'Link Fayda ID.html?next=' + encodeURIComponent('Credit Score - Upload Statement.html');
+    location.href = 'Credit Score - Upload Statement.html' + (TL.faydaLinked() ? '' : '?fayda=0');
   }
   if (TL.scorePending()) {
     $('updated').textContent = 'Updating…';
@@ -194,7 +196,6 @@
   }
   const upd = +new URLSearchParams(location.search).get('updated');
   if (upd) {
-    document.querySelector('.bottom-bar .btn-primary').textContent = 'OK';
     setTimeout(() => toast(upd > 1 ? `Your score went up by ${upd} points` : 'Your score has been updated'), 300);
   }
 

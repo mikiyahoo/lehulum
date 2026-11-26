@@ -392,8 +392,8 @@
   </div>
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
-<script src="savings-ui.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
 <script>
   /* Savings receipt: the result of every savings action after the PIN — opt-in,
      individual / target (create, deposit, withdraw, close), fixed deposit (open,
@@ -471,6 +471,9 @@
   if (d.kind === 'sav-optin') location.replace('Savings.html?done=optin&menu=20261119d');
   // A new saving has no money yet: no receipt, straight to it (it shows the 'ready' state)
   if (d.kind === 'sav-create') location.replace(`Savings - Pocket.html?id=${d.id}&done=create`);
+  // A mini statement is not a receipt: its own screen
+  if (d.kind === 'sav-mini') location.replace(`Savings - Mini Statement.html?${d.group ? 'group' : 'id'}=${d.id}`);
+  if (d.kind === 'sav-fd-mini') location.replace(`Savings - Mini Statement.html?fd=${d.id}`);
 
   // ── What to show ──
   const p = P(d.id), a = A(d.id), g = G(d.id);
@@ -489,6 +492,7 @@
     'sav-fd-mature': ['Money Withdrawal!', `${fmt(d.amount)} ETB sent to your ${d.destName || 'M-PESA wallet'}.`, 'Back to Fixed Deposit', () => location.href = 'Fixed Deposit.html?menu=20261119c'],
     'sav-fd-early': ['Money Withdrawal!', 'Closed before maturity — your deposit was returned.', 'Back to Fixed Deposit', () => location.href = 'Fixed Deposit.html?menu=20261119c'],
     'sav-fd-balance': ['Balance', 'Balance as of ' + new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }), 'Mini Statement', () => { d.kind = 'sav-fd-mini'; sessionStorage.setItem('termLoanData', JSON.stringify(d)); location.reload(); }],
+    'sav-mini': ['Mini Statement', 'Your last five movements. Also sent to your phone by SMS.', 'Done', () => location.href = d.group ? `Group Saving - Group.html?id=${d.id}` : `Savings - Pocket.html?id=${d.id}`],
     'sav-fd-mini': ['Mini statement', 'Your last five movements. Also sent to your phone by SMS.', 'Done', goAcct],
     'sav-grp-create': [`${d.name} is ready`, `Invitations sent to ${(d.members || []).length} ${(d.members || []).length > 1 ? 'members' : 'member'}. Contribute to get the group started.`, 'Contribute', () => location.href = `Savings - Amount.html?group=${d.id}`],
     'sav-grp-contribute': ['Contribution added', `${fmt(d.amount)} ETB added to ${g ? g.name : 'the group'}.`, 'View Group', goGroup('contribute')],
@@ -543,6 +547,10 @@
       if (d.destName && !/wallet/i.test(d.destName)) rows.push(['Sent to', d.destName]);
       break; }
     case 'sav-fd-balance': rows.push(['Current balance', '<b>' + ETB(SV.maturedTotal(a)) + '</b>'], ['Principal', ETB(a.principal)], ['Accrued interest', '+' + ETB(SV.accrued(a))], ['Matures on', SV.dateStr(SV.maturityOf(a))]); break;
+    case 'sav-mini': { const acc = d.group ? G(d.id) : P(d.id);
+      if (acc) { rows.push(['Saving Name', acc.name], ['Balance', ETB(SV.balanceOf(acc))]);
+        acc.txns.slice().reverse().slice(0, 5).forEach(t => rows.push([`${t.type === 'WITHDRAW' ? 'Withdrawn' : t.auto ? 'Recurring deposit' : 'Deposit'}<small>${SV.dateStr(t.on)}</small>`, (t.type === 'WITHDRAW' ? '-' : '+') + fmt(t.amount)])); }
+      break; }
     case 'sav-fd-mini': SV.history(a).reverse().slice(0, 5).forEach(t => rows.push([`${{ 'DEPOSIT': 'Deposit', 'INTEREST ACCRUED': 'Interest accrued', 'INTEREST POSTED': 'Interest posted', 'WITHDRAW': 'Withdrawn', 'ROLLED OVER': 'Rolled over' }[t.type]}<small>${SV.dateStr(t.on)}</small>`, (t.type === 'WITHDRAW' ? '-' : '+') + fmt(t.amount)])); break;
     case 'sav-grp-create': rows.push(['Group', d.name], ['Target', ETB(d.target.amount)], ['By', SV.dateStr(d.target.by)], ['Members', (d.members.length + 1) + ' including you']); break;
     case 'sav-grp-contribute': if (g) rows.push(['Group', g.name], ['Amount', ETB(d.amount)], ['Group balance', ETB(SV.balanceOf(g))], ['Target progress', SV.pctOf(g) + '% of ' + ETB(g.target.amount)]); break;
@@ -552,7 +560,7 @@
   }
   const TYPE = { 'sav-create': 'Saving Created', 'sav-deposit': 'Deposit to Saving account', 'sav-withdraw': 'Transfer to M-PESA account', 'sav-close': 'Transfer to M-PESA account',
     'sav-auto-set': 'Recurring Deposit Setup', 'sav-fd-open': 'Deposit to Saving A/C', 'sav-fd-roll': 'Deposit to Saving A/C', 'sav-fd-mature': 'Deposit to M-PESA A/C',
-    'sav-fd-early': 'Deposit to M-PESA A/C', 'sav-fd-balance': 'Balance Inquiry', 'sav-fd-mini': 'Mini Statement', 'sav-grp-create': 'Group Saving Created',
+    'sav-fd-early': 'Deposit to M-PESA A/C', 'sav-fd-balance': 'Balance Inquiry', 'sav-fd-mini': 'Mini Statement', 'sav-mini': 'Mini Statement', 'sav-grp-create': 'Group Saving Created',
     'sav-grp-contribute': 'Group Contribution', 'sav-grp-withdraw': 'Group Withdrawal', 'sav-grp-close': 'Group Closure',
     'sav-grp-leave': 'Group Leave Request', 'sav-grp-approve': 'Group Leave Approval' }[d.kind];
   const PARTY_TYPES = ['sav-grp-contribute', 'sav-grp-withdraw', 'sav-grp-close'];
@@ -604,18 +612,52 @@
   function closeShareSheet() { $('shareSheetOverlay').classList.remove('show'); }
   function shareVia(app) { closeShareSheet(); showToast('Sharing via ' + app + '...'); }
   function copyReceiptLink() { closeShareSheet(); copyText(location.href).then(() => showToast('Receipt link copied')); }
-  function downloadReceipt() { ReceiptPDF.download({ root: '.receipt-card', name: 'M-PESA Savings', toast: showToast }); }
+  // Download Detail: the saving's contract detail (holder, account, terms, this transaction, conditions)
+  function downloadReceipt() {
+    const pk = P(d.id), fd = A(d.id), gr = G(d.id), E = v => fmt(v) + ' ETB';
+    const holder = { title: 'Account Holder', rows: [['Name', 'Aster Mequanent'], ['Phone Number', '0712131415'], ['Linked Wallet', 'M-PESA Main Account'], ['Customer ID', 'MP-0712131415']] };
+    let title = 'Saving Contract Detail', status = 'Active', account = [], terms = [], cond = [];
+    if (fd) {
+      const st = SV.fdStatus(fd), mat = SV.maturityOf(fd), gross = fd.principal * fd.rate / 100 * SV.termDays(fd) / 365;
+      title = 'Fixed Deposit Contract Detail'; status = { active: 'Active · Locked', matured: 'Matured', closed: 'Closed' }[st];
+      account = [['Contract / Account No', fd.id], ['Product', 'Fixed Deposit · ' + fd.name], ['Partner Bank', 'Cooperative Bank of Oromia'], ['Opened On', SV.dateStr(fd.opened)]];
+      terms = [['Principal', E(fd.principal)], ['Lock Period', fd.months + ' months'], ['Interest Rate', fd.rate + '% (fixed)'], ['Maturity Date', SV.dateStr(mat)], ['Interest at Maturity', '+' + E(gross)], ['Total at Maturity', E(fd.principal + gross)]];
+      cond = ['The deposit is locked for the full term at the fixed rate shown above.', 'Withdrawing before the maturity date returns the principal only; the interest is forfeited.',
+        'At maturity the principal and interest can be withdrawn to the M-PESA wallet or rolled over into a new term.', 'Interest is calculated daily and paid at maturity.'];
+    } else if (gr) {
+      title = 'Group Saving Contract Detail';
+      account = [['Contract / Account No', gr.id], ['Product', 'Group Saving · ' + gr.name], ['Partner Bank', 'Cooperative Bank of Oromia'], ['Opened On', SV.dateStr(gr.opened)]];
+      terms = [['Group Target', E(gr.target.amount)], ['Target Date', SV.dateStr(gr.target.by)], ['Members', String(SV.joined(gr).length)], ['Admin', gr.admin === 'me' ? 'You' : SV.person(gr.admin).name], ['Your Contributions', E(SV.memberTotal(gr, 'me'))], ['Interest Rate', SV.RATE + '%']];
+      cond = ['Each member earns interest on their own contributions.', 'Only the admin can withdraw, once the target is reached or the target date has passed.', 'A member can leave once enough members approve; their contributions and interest are paid back.'];
+    } else if (pk) {
+      const tgt = !!pk.target;
+      title = (tgt ? 'Target' : 'Individual') + ' Saving Contract Detail';
+      account = [['Contract / Account No', pk.id], ['Product', (tgt ? 'Target Saving · ' : 'Individual Saving · ') + pk.name], ['Partner Bank', 'Cooperative Bank of Oromia'], ['Opened On', SV.dateStr(pk.opened)]];
+      terms = [['Interest Rate', SV.RATE + '%'], ['Interest', 'Calculated daily'], ['Balance', E(SV.balanceOf(pk))], ['Accrued Interest', '+' + E(SV.interestOf(pk))]];
+      if (tgt) terms.push(['Target Amount', E(pk.target.amount)], ['Target Date', SV.dateStr(pk.target.by)]);
+      if (pk.auto) terms.push(['Recurring Deposit', SV.autoLine(pk.auto)]);
+      cond = tgt ? ['Deposits can be made at any time toward the target amount.', 'Withdrawals are allowed at any time; interest already earned is kept.', 'Closing before the target date ends the goal; the balance and interest go to the M-PESA wallet.']
+                 : ['Deposits and withdrawals can be made at any time.', 'Interest is calculated daily on the balance and is kept on withdrawal.', 'Closing the saving sends the balance and interest to the M-PESA wallet.'];
+    } else {
+      account = [['Contract / Account No', d.id || '—'], ['Product', d.name || 'M-PESA Savings'], ['Partner Bank', 'Cooperative Bank of Oromia']];
+    }
+    cond.push('M-PESA will never ask for your PIN. Keep this document for your records.');
+    const txn = { title: 'This Transaction', rows: [['Transaction Type', TYPE || C[0]], ['Amount', E(d.amount || 0)], ['Transaction ID', d.ref || '—'], ['Date', $('detailDate').textContent]] };
+    ReceiptPDF.contract({ name: 'M-PESA Savings', title, ref: (fd || gr || pk || {}).id || d.id, status, qr: $('qrCode').src || '',
+      sections: [holder, { title: 'Saving Account', rows: account }, { title: 'Terms', rows: terms }, txn], terms: cond, toast: showToast });
+  }
   function addToFavorite() { showToast('Added to favorites!'); }
   function finish() {
     const k = d.kind || '';
-    location.href = k === 'sav-deposit' || k === 'sav-withdraw' ? `Savings - Pocket.html?id=${d.id}`
+    location.href = k === 'sav-mini' ? (d.group ? `Group Saving - Group.html?id=${d.id}` : `Savings - Pocket.html?id=${d.id}`)
+      : k === 'sav-deposit' || k === 'sav-withdraw' ? `Savings - Pocket.html?id=${d.id}`
       : /^sav-fd-(open|roll|balance|mini)/.test(k) ? `Fixed Deposit - Account.html?id=${d.id}&done=1&menu=20261119c` : /^sav-fd/.test(k) ? 'Fixed Deposit.html?menu=20261119c'
       : k === 'sav-auto-set' ? (d.group ? `Group Saving - Group.html?id=${d.id}` : `Savings - Pocket.html?id=${d.id}`)
       : /^sav-grp-(create|contribute|leave|approve)/.test(k) && G(d.id) ? `Group Saving - Group.html?id=${d.id}` : /^sav-grp/.test(k) ? 'Group Saving.html' : 'Savings.html?menu=20261119d';
   }
 </script>
 <!-- Export to Figma button (shared exporter) -->
-<script src="components/receipt-pdf.js?v=1"></script>
+<script src="components/receipt-pdf.js?v=3"></script>
 <script src="figma-export.js"></script>
 <script src="test-scenarios-data.js"></script>
 <script src="test-scenarios.js"></script>

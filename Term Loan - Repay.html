@@ -42,7 +42,7 @@
 
   /* Loan */
   .loan { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
-  .loan .logo { width: 44px; height: 44px; border-radius: 12px; border: 1px solid #EFEFF2; background: #FFF; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .loan .logo { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #EFEFF2; background: #FFF; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
   .loan .logo img { width: 30px; height: 30px; object-fit: contain; }
   .loan .info { flex: 1; min-width: 0; }
   .loan b { display: block; font-size: 15px; font-weight: 700; color: var(--On-Surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -57,12 +57,12 @@
   .inst-body small { display: block; font-size: 12px; color: var(--On-Surface-Low); }
   .inst-body b { display: block; margin-top: 4px; font-size: 16px; font-weight: 700; color: var(--On-Surface); white-space: nowrap; }
   .inst-body .r { text-align: right; }
-  .inst-body .late, #instDue { color: var(--Primary); }
+  .inst-body .late, #instDue.soon { color: var(--Primary); }
   .inst-note { margin-top: 12px; padding-top: 10px; border-top: 1px solid #F1F1F4; font-size: 11.5px; color: #55555E; }
   .inst-note b { color: #C2610C; }
 
   /* Choose Repayment */
-  .sec { margin: 6px 2px -4px; font-size: 15px; font-weight: 600; color: var(--On-Surface); }
+  .sec { margin: 6px 2px -4px; font-size: 15px; font-weight: 400; color: var(--On-Surface); }
   .choose { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
   .lbl { font-size: 15px; font-weight: 500; color: var(--On-Surface); }
   .amount { display: flex; align-items: center; gap: 8px; height: 54px; padding: 0 16px; border: 1px solid #E6E6EA; border-radius: 14px; background: #F3F3F5; }
@@ -75,14 +75,8 @@
   .bal.err { color: var(--Primary); font-weight: 600; }
   /* Repay In Full: tap to put the full amount in the box */
   /* Repay All: a centred outline button with the whole amount left */
-  .opt { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 14px; border: 1.5px solid #F7A4A8; border-radius: 18px; background: #FFF; cursor: pointer; text-align: center; }
+  .opt { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 14px; border: 1.5px solid var(--Primary); border-radius: 14px; background: #FFF; color: var(--Primary); font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .opt.on { border-color: var(--Primary); background: var(--Primary-Light); }
-  .opt > i { width: 40px; height: 40px; border-radius: 12px; background: var(--Primary-Light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .opt.on > i { background: #FFF; }
-  .opt > i svg { width: 21px; height: 21px; stroke: var(--Primary); stroke-width: 1.9; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .opt > span { flex: 1; min-width: 0; }
-  .opt b { display: block; font-size: 15px; font-weight: 700; color: var(--On-Surface); }
-  .opt small { display: block; margin-top: 3px; font-size: 12px; color: #55555E; }
 
   .bottom-bar { padding: 10px 16px 18px; flex-shrink: 0; }
   .btn-primary { width: 100%; height: 52px; border: none; border-radius: 14px; background: var(--Primary); color: #FFF; font-size: 15px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 16px rgba(254,53,61,0.25); }
@@ -95,7 +89,7 @@
   .sheet.show { transform: translateY(0); }
   .sheet-grip { width: 40px; height: 4px; border-radius: 2px; background: #D8D8DE; margin: 0 auto 18px; }
   .cf-head { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid #E6E6EA; border-radius: 16px; }
-  .cf-head .logo { width: 42px; height: 42px; border-radius: 12px; border: 1px solid #EFEFF2; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .cf-head .logo { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #EFEFF2; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
   .cf-head .logo img { width: 30px; height: 30px; object-fit: contain; }
   .cf-head b { display: block; font-size: 15px; font-weight: 700; color: var(--On-Surface); }
   .cf-head small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--On-Surface-Low); }
@@ -149,9 +143,9 @@
       <p class="sec">Choose Repayment</p>
       <div class="card choose">
         <label class="lbl" for="amt">Set Partial Amount</label>
-        <div class="amount"><input id="amt" inputmode="decimal" placeholder="e.g 1,200.00" oninput="paint()"><small>ETB</small></div>
+        <div class="amount"><input id="amt" inputmode="decimal" placeholder="3,000" oninput="paint()"><small>ETB</small></div>
         <p class="bal" id="bal"></p>
-        <button class="opt" id="fullOpt" type="button" onclick="fillFull()"><b>Repay All</b><small id="fullSub"></small></button>
+        <button class="opt" id="fullOpt" type="button" onclick="fillFull()">Repay All - <span id="fullSub"></span></button>
       </div>
     </div>
 
@@ -162,7 +156,7 @@
   <div class="scrim" id="scrim" onclick="closeConfirm()"></div>
   <div class="sheet" id="sheet" role="dialog" aria-label="Confirm repayment">
     <div class="sheet-grip"></div>
-    <div class="cf-head"><span class="cf-badge">REPAYMENT</span><span class="logo"><img id="cfLogo" src="" alt=""></span><span><b id="cfBank"></b><small id="cfProduct"></small></span></div>
+    <div class="cf-head"><span class="cf-badge">REPAYMENT</span><span class="logo"><img id="cfLogo" src="" alt=""></span><span><b id="cfProduct"></b><small id="cfBank"></small></span></div>
     <div class="cf-rows" id="cfRows"></div>
     <div class="cf-actions"><button class="cf-btn cancel" type="button" onclick="closeConfirm()">Cancel</button><button class="cf-btn confirm" type="button" onclick="confirmPay()">Confirm</button></div>
   </div>
@@ -188,7 +182,7 @@
   $('product').textContent = loan.product;
   $('lender').textContent = loan.lender;
   $('tag').textContent = offer.productLabel || 'Loan';
-  $('fullSub').textContent = fmt(full) + ' ETB';
+  $('fullSub').textContent = fmt(full).replace(/\.00$/, '') + ' ETB';
 
   // The next instalment — payments always go to the earliest one first
   function showInst() {
@@ -197,6 +191,7 @@
     $('instAmt').textContent = fmt(TL.instLeft(i)) + ' ETB';
     $('dueIn').textContent = d === 'Overdue' ? 'Overdue' : d === 'Today' ? 'Due today' : 'Due in ' + d;
     $('dueIn').classList.toggle('late', d === 'Overdue');
+    $('instDue').classList.toggle('soon', new Date(i.due) - Date.now() < 7 * 864e5);   // red when due within a week or overdue
     $('instDue').textContent = TL.dateStr(i.due);
     const note = paid > 0 ? `Partly paid: <b>${fmt(paid)} of ${fmt(i.amount)} ETB</b>` : '';
     $('instNote').innerHTML = note; $('instNote').style.display = note ? '' : 'none';
@@ -228,16 +223,15 @@
     pending = { amount, which, part };
     const days = loan.days, access = offer.access || 0, daily = offer.daily || 0, idx = loan.instalments.indexOf(nx) + 1;
     const pct = v => (v * 100).toFixed(2).replace(/\.?0+$/, '');
-    const rows = [['From', 'Main account'], ['Loan Amount', fmt(loan.amount) + ' ETB'],
+    const rows = [['From', 'Main account'], ['Disbursed Loan Amount', fmt(loan.amount) + ' ETB'],
       [`Access Fee (${pct(access)}%)`, fmt(loan.amount * access) + ' ETB'],
       [`Maintenance Fee (${pct(daily)}%)`, fmt(loan.amount * daily * days) + ' ETB']];
-    if (which === 'all' && unpaid.length > 1) rows.push(['Left on the loan', fmt(total) + ' ETB'], ['Final instalment due', TL.dateStr(unpaid[unpaid.length - 1].due)]);
+    if (which === 'all' && unpaid.length > 1) rows.push(['Left on the loan', fmt(total) + ' ETB'], ['Due In', TL.dateStr(unpaid[unpaid.length - 1].due)]);
     else {
       rows.push([`Instalment ${idx} of ${loan.instalments.length}`, fmt(nxLeft) + ' ETB']);
-      if (part) rows.push(['Left on instalment after', fmt(nxLeft - amount) + ' ETB']);
-      rows.push(['Repay By', TL.dateStr(nx.due)]);
+      rows.push(['Due In', TL.dateStr(nx.due)]);
     }
-    rows.push([part ? 'Paying Now' : 'Total Repayment', fmt(amount) + ' ETB']);
+    rows.push(['Total Repayment', fmt(amount) + ' ETB']);
     $('cfLogo').src = loan.logo; $('cfBank').textContent = loan.lender; $('cfProduct').textContent = loan.product;
     $('cfRows').innerHTML = rows.map(([k, v], i) => `<div class="cf-row${i === rows.length - 1 ? ' total' : ''}"><span>${k}:</span><b>${v}</b></div>`).join('');
     $('scrim').classList.add('show'); $('sheet').classList.add('show');

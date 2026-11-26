@@ -255,7 +255,13 @@
   /* Status time fixed to match the rest of the app */
   document.getElementById('statusTime').textContent = '10:00';
   /* Back to the Link Fayda screen */
-  function goBack() { window.location.href = 'Link Fayda_SignUp.html'; }
+  // ?next=<page>: linking Fayda from inside the app (credit score, savings…) — back returns
+  // there, and accepting the consent marks Fayda as linked and continues to <page>
+  const FY_NEXT = new URLSearchParams(location.search).get('next');
+  function goBack() {
+    if (FY_NEXT) { if (history.length > 1 && document.referrer) history.back(); else window.location.href = FY_NEXT; return; }
+    window.location.href = 'Link Fayda_SignUp.html';
+  }
 
   /* Inline field error (styles/field-error.css): set text, show when non-empty */
   function setFieldError(id, m) { const e = document.getElementById(id); e.querySelector('.fe-txt').textContent = m || ''; e.classList.toggle('show', !!m); }
@@ -362,6 +368,7 @@
   }
   function acceptConsent() {
     clearInterval(consentTimerInterval);
+    if (FY_NEXT) { try { sessionStorage.setItem('faydaLinked', '1'); } catch (e) {} window.location.href = FY_NEXT; return; }
     window.location.href = 'Confirm Profile.html';
   }
 

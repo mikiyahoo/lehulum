@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/component-status-bar.css">
 <link rel="stylesheet" href="styles/component-sc-card.css">
-<link rel="stylesheet" href="styles/savings.css?v=20261125c">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
 <style>
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
@@ -102,7 +102,7 @@
 
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
 <script>
   const $ = id => document.getElementById(id);
   const fmt = SV.fmt;
@@ -147,7 +147,7 @@
       const goal = parseFloat(($('goal').value || '').replace(/,/g, '')) || 0;
       const by = $('by').value;
       const low = goal > 0 && goal < SV.TARGET_MIN;
-      $('goalHint').innerHTML = low ? '<b>Minimum Deposit:</b> 500.00 ETB — enter at least this much' : '<b>Minimum Deposit:</b> 500.00 ETB';
+      $('goalHint').innerHTML = low ? '<b>Minimum Deposit:</b> 25.00 ETB — enter at least this much' : '<b>Minimum Deposit:</b> 25.00 ETB';
       $('goalHint').classList.toggle('err', low);
       ok = !!name && goal >= SV.TARGET_MIN && !!by;
       const show = goal >= SV.TARGET_MIN && !!by;

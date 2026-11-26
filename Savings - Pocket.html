@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/component-status-bar.css">
 <link rel="stylesheet" href="styles/component-sc-card.css">
-<link rel="stylesheet" href="styles/savings.css?v=20261125c">
+<link rel="stylesheet" href="styles/savings.css?v=20261125d">
 <style>
   @import url('https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700,800&display=swap');
 
@@ -86,7 +86,10 @@
   .ok-toast b { display: block; font-size: 15px; font-weight: 600; color: #FFF; }
   .ok-toast small { display: block; margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,0.6); }
   /* Target actions: four tiles, the row scrolls sideways */
-  #acts.scroll { overflow-x: auto; scrollbar-width: none; }
+  /* Keep the card's padding on both ends while it scrolls: snap so the first/last tile never touches the edge */
+  #acts.scroll { overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; scroll-padding-inline: 8px; }
+  #acts.scroll > .tile { scroll-snap-align: start; }
+  #acts.scroll::after { content: ''; flex: 0 0 1px; }
   #acts.scroll::-webkit-scrollbar { display: none; }
   #acts.scroll > .tile { flex: 0 0 auto; min-width: 0; padding-right: 14px; }
   #acts.scroll > .tile .t-txt b { white-space: nowrap; }
@@ -175,8 +178,8 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="savings-store.js?v=20261125c"></script>
-<script src="savings-ui.js?v=20261125c"></script>
+<script src="savings-store.js?v=20261125d"></script>
+<script src="savings-ui.js?v=20261125e"></script>
 <script>
   const $ = id => document.getElementById(id);
   const fmt = SV.fmt;
@@ -225,10 +228,8 @@
     if (acc) acc.classList.toggle('open');
   }
 
-  function openMiniStatement() {
-    closeSheets();
-    location.href = `Savings.html?done=statement&menu=20261119d`;
-  }
+  function openMiniStatement() { closeSheets(); SVUI.miniStatement(p.kind, p.id, p.name); }
+
 
   function openRollOver() {
     closeSheets();
@@ -264,9 +265,10 @@
   ] : [
     { label: 'Deposit', ic: 'plus', kind: 'main', onclick: "move('deposit')" },
     SVUI.recurring(p.auto, `Savings - Auto Save.html?id=${p.id}`),
-    { label: 'Withdraw', ic: 'down', circle: true, onclick: "move('withdraw')", disabled: bal <= 0 }
+    { label: 'Withdraw', ic: 'down', onclick: "move('withdraw')", disabled: bal <= 0 }
   ]);
   $('acts').classList.toggle('scroll', !!p.target);
+  $('acts').scrollLeft = 0;
   // Target hero: goal, chip and bar (no Mudaye, as in the design)
   if (p.target) $('pocketMudayeBox').style.display = 'none';
 
@@ -299,6 +301,7 @@
     location.href = 'Term Loan - Enter PIN.html';
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheets(); });
+  if (new URLSearchParams(location.search).get('close') === '1') setTimeout(askClose, 250);   // from Close Saving on a list page
   const done = new URLSearchParams(location.search).get('done');
 
   // Ready state: never had money in it → one clear first step instead of empty lists and buttons

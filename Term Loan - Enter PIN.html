@@ -189,6 +189,11 @@
     av.style.background = '#FFF'; av.style.border = '1px solid #EFEFF2';
   }
 
+  // Term Loan activation (and any caller): initials avatar, own sub-line and button text
+  if (data.initials && !data.logo) document.getElementById('sumIcon').textContent = data.initials;
+  if (data.sub && !/^sav-/.test(data.kind || '')) document.querySelector('.party-sub').innerHTML = data.sub;
+  if (data.btn) document.getElementById('payBtn').textContent = data.btn;
+
   let pin = '';
   const boxes = Array.from(document.querySelectorAll('.pin-box'));
   const payBtn = document.getElementById('payBtn');
@@ -225,6 +230,8 @@
     pinFeedback(true, () => {
       data.ref = 'U' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random()*26)] + Array.from({length:8},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random()*31)]).join('');
       sessionStorage.setItem('termLoanData', JSON.stringify(data));
+      // Activation: Term Loan is on, but there is no credit score / limit yet
+      if (data.kind === 'tl-activate') { sessionStorage.setItem('termLoanActive', '1'); sessionStorage.setItem('tlNoScore', '1'); }
       window.location.href = data.next || 'Term Loan - Receipt.html';
     });
   }
